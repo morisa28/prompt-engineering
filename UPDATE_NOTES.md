@@ -15,7 +15,7 @@
 - 跨分支示例：`examples.md`
 - 场景化分支：`branches/`
 - 中文 README：`README.md`
-- English README：`README.en.md`
+- English README：`README_en.md`
 - 更新说明：`UPDATE_NOTES.md`
 
 ## 当前能力范围
@@ -51,10 +51,19 @@
 
 - 已将源目录复制到目标目录。
 - 已对源目录和目标目录执行内容比较，复制内容一致。
-- 已新增 `README.md`、`README.en.md`、`UPDATE_NOTES.md`。
+- 已新增 `README.md`、`README_en.md`、`UPDATE_NOTES.md`。
+- GitHub 分发内容不包含本地 `.git/` 目录；发布前只需确认工作区文件不含本机路径、用户名、盘符或仓库远端信息。
 
 ## 使用建议
 
 - 若要作为 Codex skill 使用，可将整个 `prompt-engineering` 目录放入 Codex skills 目录。
 - 如果只想参考模板，可直接读取 `router.md`、`templates.md`、`checklists.md` 和对应 `branches/` 文件。
 - 修改或新增分支时，应同步更新 `SKILL.md`、`router.md`、`templates.md`、`checklists.md` 和 `examples.md`，避免路由失效。
+
+## 2026-04-27 Extension Automation
+
+- Added `scripts/skill_hub_manager.py`.
+- Added `scripts/README.md`.
+- Added `scripts/sample-branch-spec.json`.
+- Added explicit `SKILL.md` policy: scripts must not run during normal prompt generation; `add-branch` is only allowed when the user explicitly asks to add a new branch and confirms the branch spec.
+- Added script commands for branch generation, validation, statistics, and capability reporting.

@@ -11,6 +11,7 @@
 - `checklists.md`：可执行质量检查表。
 - `examples.md`：跨分支完整示例。
 - `branches/`：场景化分支库，共 45 个分支。
+- `scripts/`：扩展管理脚本，用于新增分支、验证结构、统计规模和输出能力说明。
 
 ## 分支分类
 
@@ -38,8 +39,48 @@
 5. 用 `checklists.md` 和分支检查表自检。
 6. 必要时参考 `examples.md`。
 
+## 扩展管理脚本
+
+副本内置 `scripts/skill_hub_manager.py`，用于维护 Skill Hub：
+
+```bash
+python3 scripts/skill_hub_manager.py validate
+python3 scripts/skill_hub_manager.py stats
+python3 scripts/skill_hub_manager.py capabilities
+python3 scripts/skill_hub_manager.py init-spec --output <branch-spec.json>
+python3 scripts/skill_hub_manager.py add-branch --spec <branch-spec.json> --dry-run
+python3 scripts/skill_hub_manager.py add-branch --spec <branch-spec.json>
+```
+
+脚本能力：
+
+- `validate`：检查根文件、分支 10 节结构、路由引用、模板占位符、检查表和空泛表达。
+- `stats`：统计分支、分类、模板、检查表和示例数量。
+- `capabilities`：输出当前 Skill Hub 能力说明。
+- `init-spec`：生成新分支 JSON spec 示例。
+- `add-branch`：根据 JSON spec 新增分支，并同步更新 `SKILL.md`、`router.md`、`templates.md`、`checklists.md` 和 `examples.md`。
+
+## 维护规则
+
+- 普通 prompt 生成、评审、改写、扩写、压缩、路由或模板查找时，不调用脚本。
+- 只有当用户明确要求“添加 / 创建 / 注册新分支”时，才允许询问并调用 `add-branch`。
+- 调用 `add-branch` 前，必须确认分支分类、slug、用途、触发条件、必需输入、构造规则、硬约束、输出格式、检查表和示例。
+- 新增分支前优先运行 `--dry-run`；确认无误后再正式写入。
+- 新增分支后必须运行 `validate`、`stats` 和 `capabilities`，并汇报修改文件、统计结果和剩余问题。
+
 ## 质量标准
 
 最终 prompt 必须具备：明确目标、充分上下文、清晰输入、具体步骤、强约束、输出格式、验收标准、风险控制、不确定性标注，并能直接交给目标 AI 工具执行。
 
+## 当前规模
 
+- 分支：45 个。
+- 分类：14 个。
+- 通用模板：23 个。
+- 通用检查表：28 个。
+- 跨分支示例：28 个。
+- 路由示例：23 个。
+
+## 分发位置
+
+- 将整个 `prompt-engineering` 目录复制到目标 Codex skills 目录或团队约定的分发目录。

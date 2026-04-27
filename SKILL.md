@@ -123,3 +123,22 @@ Do not use this skill when the user only needs casual conversation, a short dire
 
 ## 7. Final Prompt Quality Standard
 A final prompt must have a clear objective, sufficient context, named input materials, ordered execution steps, strong constraints, explicit output format, checkable acceptance criteria, risk and uncertainty handling, and target-tool adaptation. It must be ready to hand to the target AI tool without requiring the tool to guess the task, the source materials, the boundaries, or the definition of done.
+
+## 8. Extension Automation
+
+This skill includes maintenance scripts in `scripts/` for branch extension, validation, statistics, and capability reporting.
+
+Script policy:
+- Do not invoke scripts during ordinary prompt generation, prompt review, prompt rewrite, routing, or template lookup.
+- Invoke `scripts/skill_hub_manager.py add-branch` only when the user explicitly asks to add a new branch to this Skill Hub.
+- Before invoking `add-branch`, ask the user to confirm the branch category, slug, purpose, trigger conditions, required inputs, construction rules, hard constraints, output format, checklist, and example.
+- Prefer `--dry-run` first, review the planned changes, then run without `--dry-run` only after the branch spec is complete.
+- After adding a branch, run `validate`, `stats`, and `capabilities`, then summarize changed files and remaining issues.
+
+Available script commands:
+- `python3 scripts/skill_hub_manager.py add-branch --spec <branch-spec.json> --dry-run`
+- `python3 scripts/skill_hub_manager.py add-branch --spec <branch-spec.json>`
+- `python3 scripts/skill_hub_manager.py validate`
+- `python3 scripts/skill_hub_manager.py stats`
+- `python3 scripts/skill_hub_manager.py capabilities`
+- `python3 scripts/skill_hub_manager.py init-spec --output <branch-spec.json>`
