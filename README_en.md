@@ -41,8 +41,3 @@ This is a distributable copy of the `prompt-engineering` skill. It turns vague r
 ## Quality Standard
 
 A final prompt must include a clear objective, sufficient context, named inputs, concrete execution steps, strong constraints, explicit output format, testable acceptance criteria, risk controls, uncertainty handling, and target-tool adaptation.
-
-## Copy Location
-
-- Windows path: `F:\file\wsl_shared_files\study\new skill\prompt-engineering`
-- WSL path: `/home/just_monika/win_share/study/new skill/prompt-engineering`
