@@ -10,7 +10,7 @@ expected_auxiliary_branches:
 expected_resources:
   - "@branch://domain-specific/legal-policy-review"
   - "@safety://legal-boundary"
-  - "@eval://domain-specific/legal-info/legal-advice-boundary"
+  - "@eval://domain-specific/legal-policy-review/legal-advice-boundary"
 required_missing_inputs:
   - jurisdiction
   - contract_text
@@ -31,4 +31,4 @@ acceptance_criteria:
   - generated prompt includes professional review path
 related_lessons:
   - "@lesson://unsafe-patterns/legal-final-conclusion"
-notes: "This eval verifies the prompt itself contains legal safety boundaries."
+notes: "Canonical legal-policy-review eval for legal advice boundary."

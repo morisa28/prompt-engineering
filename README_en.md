@@ -167,6 +167,41 @@ RAG example:
 | eval | `@eval://ai-systems/knowledge-base-rag/citation-required` | Ensures no answer is allowed without retrieved evidence |
 | lesson | `@lesson://unsafe-patterns/rag-unsourced-answer` | Prevents unsourced answers from becoming the default behavior |
 
+## Language And Naming Convention
+
+This project allows Chinese and English together, but the boundary must be explicit.
+
+Machine-stable surfaces use English:
+
+- File names and directory names.
+- Branch, template, checklist, eval, adapter, safety, and lesson IDs.
+- Resource URIs, for example `@branch://software-engineering/bugfix-debugging`.
+- YAML keys and schema fields, for example `expected_primary_branch`.
+- Script commands, script metadata, and template placeholders such as `{{working_directory}}`.
+
+Human-facing content should use Chinese first:
+
+- Explanatory paragraphs.
+- Example user requests.
+- Prompt template bodies.
+- Checklist items.
+- Acceptance criteria.
+- Common mistake and repair explanations.
+
+Keep terminology consistent:
+
+| Concept | Machine Identifier | Chinese Display Term |
+|---|---|---|
+| Primary branch | `primary_branch` | 主分支 |
+| Auxiliary branches | `auxiliary_branches` | 辅助分支 |
+| Resource registry | `metadata/resources.yaml` | 资源注册表 |
+| Eval case | `eval_case` | eval case / 评测样例 |
+| Lesson | `lesson` | lesson / 经验记录 |
+| Legal policy review | `legal-policy-review` | 法律/政策审阅 |
+| Finance investment analysis | `finance-investment-analysis` | 金融/投资分析 |
+
+Do not add Chinese resource IDs, Chinese URIs, Chinese YAML keys, or duplicate aliases for the same concept.
+
 ## Primary Branch Rule
 
 Choose the primary branch by the final deliverable:

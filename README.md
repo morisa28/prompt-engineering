@@ -2,7 +2,7 @@
 
 一句话定位：把用户的模糊需求路由到合适场景分支，并生成可交给 Codex、Codex CLI、Claude Code、Gemini CLI、ChatGPT 等工具执行的高质量 prompt。
 
-## 面向的使用对象
+## 适用人群
 
 - 想把口语需求改成强执行 prompt 的用户。
 - 为 coding agent、研究 agent、数据分析 agent 或文档 agent 编写任务说明的人。
@@ -166,6 +166,41 @@ AI Agent 使用本项目时应按以下顺序处理：
 | checklist | `@checklist://rag` | 检查引用、拒答、权限、更新和评估指标 |
 | eval | `@eval://ai-systems/knowledge-base-rag/citation-required` | 检查没有检索证据时不得回答 |
 | lesson | `@lesson://unsafe-patterns/rag-unsourced-answer` | 防止无来源回答成为默认行为 |
+
+## 语言和命名约定
+
+本项目允许中英文混用，但必须有明确边界。
+
+机器需要稳定识别的内容统一使用英文：
+
+- 文件名和目录名。
+- 分支、模板、检查表、eval、adapter、safety、lesson 的 ID。
+- Resource URI，例如 `@branch://software-engineering/bugfix-debugging`。
+- YAML key 和 schema 字段，例如 `expected_primary_branch`。
+- 脚本命令、脚本元数据和模板占位符，例如 `{{working_directory}}`。
+
+面向人阅读的内容优先使用中文：
+
+- 说明段落。
+- 示例需求。
+- 模板正文。
+- 检查项。
+- 验收标准。
+- 常见错误和修复说明。
+
+术语保持一致：
+
+| 概念 | 机器标识符 | 中文显示 |
+|---|---|---|
+| Primary branch | `primary_branch` | 主分支 |
+| Auxiliary branches | `auxiliary_branches` | 辅助分支 |
+| Resource registry | `metadata/resources.yaml` | 资源注册表 |
+| Eval case | `eval_case` | eval case / 评测样例 |
+| Lesson | `lesson` | lesson / 经验记录 |
+| Legal policy review | `legal-policy-review` | 法律/政策审阅 |
+| Finance investment analysis | `finance-investment-analysis` | 金融/投资分析 |
+
+不要新增中文资源 ID、中文 URI、中文 YAML key，避免同一概念同时出现多个路径或别名。
 
 ## 如何选择主分支
 

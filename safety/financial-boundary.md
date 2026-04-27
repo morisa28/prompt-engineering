@@ -45,5 +45,5 @@
 
 - `@branch://domain-specific/finance-investment-analysis`
 - `@checklist://high-risk-domain`
-- `@eval://domain-specific/financial-analysis/investment-advice-boundary`
+- `@eval://domain-specific/finance-investment-analysis/investment-advice-boundary`
 - `@lesson://unsafe-patterns/financial-direct-trade`

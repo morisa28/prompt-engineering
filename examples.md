@@ -945,7 +945,7 @@
 - 风险等级：Medium
 
 使用资源：
-- `@branch://meta/prompt-system-improvement`
+- `@branch://meta/meta-skill-builder`
 - `@checklist://prompt-system-improvement`
 - `@checklist://resource-registry`
 - `@eval://meta/resource-registry/basic`

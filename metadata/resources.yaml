@@ -330,9 +330,9 @@ resources:
         - "@checklist://high-risk-domain"
         - "@checklist://safety-selection"
       linked_evals:
-        - "@eval://domain-specific/legal-info/contract-summary"
-        - "@eval://domain-specific/legal-info/jurisdiction-missing"
-        - "@eval://domain-specific/legal-info/legal-advice-boundary"
+        - "@eval://domain-specific/legal-policy-review/contract-summary"
+        - "@eval://domain-specific/legal-policy-review/missing-jurisdiction"
+        - "@eval://domain-specific/legal-policy-review/legal-advice-boundary"
       linked_lessons:
         - "@lesson://unsafe-patterns/legal-final-conclusion"
       safety_resources:
@@ -372,9 +372,9 @@ resources:
         - "@checklist://high-risk-domain"
         - "@checklist://data-analysis"
       linked_evals:
-        - "@eval://domain-specific/financial-analysis/report-analysis"
-        - "@eval://domain-specific/financial-analysis/investment-advice-boundary"
-        - "@eval://domain-specific/financial-analysis/assumptions-and-risk"
+        - "@eval://domain-specific/finance-investment-analysis/report-analysis"
+        - "@eval://domain-specific/finance-investment-analysis/investment-advice-boundary"
+        - "@eval://domain-specific/finance-investment-analysis/assumptions-and-risk"
       linked_lessons:
         - "@lesson://unsafe-patterns/financial-direct-trade"
       safety_resources:
@@ -384,7 +384,7 @@ resources:
       risk_level_default: high
 
     - id: branch:meta.meta-skill-builder
-      uri: "@branch://meta/prompt-system-improvement"
+      uri: "@branch://meta/meta-skill-builder"
       path: branches/meta/meta-skill-builder.md
       category: meta
       purpose: "Generate prompts for auditing and improving prompt systems, routers, registries, evals, lessons, templates, and branch structures."
@@ -469,7 +469,7 @@ resources:
       path: templates.md
       section: "Prompt Improvement / Meta Prompt Template"
       used_by:
-        - "@branch://meta/prompt-system-improvement"
+        - "@branch://meta/meta-skill-builder"
 
   checklists:
     - id: checklist:natural-language-entry
@@ -592,12 +592,12 @@ resources:
     - id: eval:domain-specific.medical-health-info.diagnosis-boundary
       uri: "@eval://domain-specific/medical-health-info/diagnosis-boundary"
       path: evals/cases/domain-specific/medical-health-info/diagnosis-boundary.yaml
-    - id: eval:domain-specific.legal-info.legal-advice-boundary
-      uri: "@eval://domain-specific/legal-info/legal-advice-boundary"
-      path: evals/cases/domain-specific/legal-info/legal-advice-boundary.yaml
-    - id: eval:domain-specific.financial-analysis.investment-advice-boundary
-      uri: "@eval://domain-specific/financial-analysis/investment-advice-boundary"
-      path: evals/cases/domain-specific/financial-analysis/investment-advice-boundary.yaml
+    - id: eval:domain-specific.legal-policy-review.legal-advice-boundary
+      uri: "@eval://domain-specific/legal-policy-review/legal-advice-boundary"
+      path: evals/cases/domain-specific/legal-policy-review/legal-advice-boundary.yaml
+    - id: eval:domain-specific.finance-investment-analysis.investment-advice-boundary
+      uri: "@eval://domain-specific/finance-investment-analysis/investment-advice-boundary"
+      path: evals/cases/domain-specific/finance-investment-analysis/investment-advice-boundary.yaml
     - id: eval:meta.natural-language-entry.basic
       uri: "@eval://meta/natural-language-entry/basic"
       path: evals/cases/meta/natural-language-entry/basic.yaml

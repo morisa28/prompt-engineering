@@ -38,7 +38,7 @@ lessons:
     related_resources:
       - "@branch://domain-specific/legal-policy-review"
       - "@safety://legal-boundary"
-      - "@eval://domain-specific/legal-info/legal-advice-boundary"
+      - "@eval://domain-specific/legal-policy-review/legal-advice-boundary"
     trigger: "用户要求判断合同是否合法、能不能签、是否一定胜诉。"
     failure_mode: "prompt 要求模型给最终法律结论。"
     root_cause: "法律任务没有要求司法辖区、材料上下文和律师复核路径。"
@@ -55,7 +55,7 @@ lessons:
     related_resources:
       - "@branch://domain-specific/finance-investment-analysis"
       - "@safety://financial-boundary"
-      - "@eval://domain-specific/financial-analysis/investment-advice-boundary"
+      - "@eval://domain-specific/finance-investment-analysis/investment-advice-boundary"
     trigger: "用户要求 AI 判断是否买入、卖出或持有具体资产。"
     failure_mode: "prompt 输出个性化交易指令或保证收益。"
     root_cause: "金融分析没有区分事实、假设、观点和风险，也没有限制个性化建议。"

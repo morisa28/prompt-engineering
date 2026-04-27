@@ -56,6 +56,8 @@ python3 scripts/skill_hub_manager.py add-branch --spec /tmp/new-branch-spec.json
 - Feature files under `evals/features/` contain `Feature:` and `Scenario:` blocks.
 - Lesson YAML files contain trigger, failure mode, root cause, fix, update targets, severity, and status.
 - Adapter and safety directories include the expected major resource files.
+- Machine-facing identifiers follow the language policy: paths, resource URIs, and stable YAML identifier fields are English-only.
+- Deprecated alias paths and URIs are rejected.
 - Known vague phrases are reported as warnings.
 
 `stats` also reports eval case count, feature count, lesson file count, adapter file count, safety file count, branch manifest status, and resource registry status.

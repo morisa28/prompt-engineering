@@ -8,7 +8,7 @@ expected_auxiliary_branches:
   - prompt-review
   - prompt-template-builder
 expected_resources:
-  - "@branch://meta/prompt-system-improvement"
+  - "@branch://meta/meta-skill-builder"
   - "@checklist://resource-registry"
   - "@eval://meta/resource-registry/basic"
 required_missing_inputs:

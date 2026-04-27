@@ -89,6 +89,23 @@ FORBIDDEN_VAGUE_PHRASES = [
     "注意风险",
 ]
 
+HAN_RE = re.compile(r"[\u4e00-\u9fff]")
+RESOURCE_URI_RE = re.compile(r"@[a-z-]+://[A-Za-z0-9][A-Za-z0-9._/-]*")
+STABLE_YAML_IDENTIFIER_KEYS = [
+    "id",
+    "branch",
+    "category",
+    "risk_level",
+    "path",
+    "uri",
+    "expected_primary_branch",
+]
+DEPRECATED_IDENTIFIER_ALIASES = [
+    "domain-specific/" + "legal-" + "info",
+    "domain-specific/" + "financial-" + "analysis",
+    "@branch://meta/" + "prompt-system-" + "improvement",
+]
+
 DEFAULT_SPEC = {
     "category": "example-category",
     "slug": "example-branch",
@@ -224,6 +241,18 @@ def safety_files(root: Path) -> list[Path]:
     return sorted(path for path in safety.rglob("*.md"))
 
 
+def project_files(root: Path) -> list[Path]:
+    files: list[Path] = []
+    for path in sorted(root.rglob("*")):
+        if not path.is_file():
+            continue
+        rel_parts = path.relative_to(root).parts
+        if rel_parts and rel_parts[0] in {".git", ".development"}:
+            continue
+        files.append(path)
+    return files
+
+
 def count_markdown_sections(path: Path, prefix: str) -> int:
     return sum(1 for line in read_text(path).splitlines() if line.startswith(prefix))
 
@@ -296,6 +325,22 @@ def validate(root: Path) -> ValidationResult:
     router = read_text(root / "router.md") if (root / "router.md").exists() else ""
     skill = read_text(root / "SKILL.md") if (root / "SKILL.md").exists() else ""
 
+    for path in sorted(root.rglob("*")):
+        rel_parts = path.relative_to(root).parts
+        if rel_parts and rel_parts[0] in {".git", ".development"}:
+            continue
+        rel = path.relative_to(root).as_posix()
+        if HAN_RE.search(rel):
+            errors.append(f"Path must use English-only identifiers: {rel}")
+        for alias in DEPRECATED_IDENTIFIER_ALIASES:
+            if alias in rel:
+                errors.append(f"Path contains deprecated identifier alias: {rel}")
+
+    for path in project_files(root):
+        rel = path.relative_to(root).as_posix()
+        if HAN_RE.search(rel):
+            errors.append(f"Path must use English-only identifiers: {rel}")
+
     for path in branch_files(root):
         rel = path.relative_to(root).as_posix()
         text = read_text(path)
@@ -334,6 +379,26 @@ def validate(root: Path) -> ValidationResult:
                 warnings.append(f"Resource registry may be missing resource type: {required_type}")
     else:
         errors.append("Missing metadata/resources.yaml")
+
+    for path in project_files(root):
+        rel = path.relative_to(root).as_posix()
+        text = read_text(path)
+        for alias in DEPRECATED_IDENTIFIER_ALIASES:
+            if alias in text:
+                errors.append(f"{rel} contains deprecated identifier alias: {alias}")
+        for uri in RESOURCE_URI_RE.findall(text):
+            if HAN_RE.search(uri):
+                errors.append(f"{rel} contains non-English resource URI: {uri}")
+            if not re.fullmatch(r"@[a-z-]+://[a-z0-9][a-z0-9./_-]*", uri):
+                errors.append(f"{rel} contains non-canonical resource URI: {uri}")
+        if path.suffix in {".yaml", ".yml"}:
+            for line_number, line in enumerate(text.splitlines(), start=1):
+                match = re.match(r"^([A-Za-z_][A-Za-z0-9_]*):\s*(.*)$", line)
+                if not match:
+                    continue
+                key, value = match.groups()
+                if key in STABLE_YAML_IDENTIFIER_KEYS and HAN_RE.search(value):
+                    errors.append(f"{rel}:{line_number} stable identifier field `{key}` contains Chinese text")
 
     evals = eval_case_files(root)
     if not evals:

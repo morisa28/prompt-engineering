@@ -44,5 +44,5 @@
 
 - `@branch://domain-specific/legal-policy-review`
 - `@checklist://high-risk-domain`
-- `@eval://domain-specific/legal-info/legal-advice-boundary`
+- `@eval://domain-specific/legal-policy-review/legal-advice-boundary`
 - `@lesson://unsafe-patterns/legal-final-conclusion`

@@ -31,4 +31,4 @@ acceptance_criteria:
   - generated prompt includes risk disclosure and source requirements
 related_lessons:
   - "@lesson://unsafe-patterns/financial-direct-trade"
-notes: "This path supports the natural language label financial-analysis."
+notes: "Canonical finance-investment-analysis report case."
