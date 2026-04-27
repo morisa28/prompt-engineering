@@ -1,252 +1,125 @@
 ---
 name: prompt-engineering
-description: Use when the user asks to optimize or generate a prompt for Codex, Gemini CLI, Claude Code, or another coding agent; when a vague request must become an executable task prompt; when plan mode, complex development, debugging, refactoring, document/PDF analysis, visual/3D interaction work, or multi-stage iteration needs structured instructions with context, constraints, outputs, acceptance criteria, and self-checks.
+description: Use when the user asks to optimize or generate a prompt for Codex, Codex CLI, Claude Code, Gemini CLI, ChatGPT, or another AI tool; route the request through a scenario-specific prompt branch with common principles, templates, checklists, examples, and acceptance criteria.
 ---
 
-# Prompt Engineering Skill
+# Prompt Engineering Skill Hub
 
-## 1. Skill Overview
-Use this skill to turn an incomplete user request into an executable prompt that an agent can follow.
+## 1. Skill Purpose
+This skill converts vague user needs into high-quality prompts. It routes the request to a suitable branch, combines auxiliary branches when needed, and produces prompts that are precise, executable, reusable, and adapted to Codex, Codex CLI, Claude Code, Gemini CLI, ChatGPT, or another target AI tool.
 
-The prompt must convert the request into:
-- a specific task goal;
-- the necessary context and source material;
-- staged execution steps;
-- hard constraints and prohibited actions;
-- output format;
-- acceptance criteria;
-- self-check and iteration rules.
+It supports prompt review, rewrite, expansion, compression, template building, software development, DevOps/CI, database migration, API design, document research, data analysis, product design, AI systems/RAG, business operations, curriculum design, creative/game design, multimodal analysis, high-risk professional domains, automation workflows, meta skill creation, Codex plan mode, and CLI agent tasks.
 
-This skill supports Codex plan mode, complex development task decomposition, prompt rewriting, multi-stage execution design, and conversion of PDF/document/code/image inputs into agent-ready tasks.
+## 2. When to Use
+Use this skill when the user asks to:
+- generate, optimize, review, rewrite, expand, compress, or template a prompt;
+- turn a casual request into AI-executable instructions;
+- write task instructions for Codex, Codex CLI, Claude Code, Gemini CLI, ChatGPT, or another agent;
+- plan before execution;
+- solidify a repeated workflow, document, or method into a template or skill.
 
-## 2. When to Use This Skill
-Use this skill when any of these triggers appear:
-- The user asks to optimize a prompt.
-- The user asks for a more detailed prompt.
-- The user asks for a Codex prompt.
-- The user asks for a Gemini CLI or Claude Code prompt.
-- The user gives a vague requirement that must become an executable task.
-- The user asks for plan mode planning.
-- The user asks for complex code development, bug fixing, or refactoring.
-- The user asks to read multiple files and produce a structured result.
-- The user asks to generate task instructions from a PDF, document, image, or repository.
-- The user asks for multi-stage iteration, staged delivery, or a reusable workflow.
+## 3. When Not to Use
+Do not use this skill when the user only needs casual conversation, a short direct answer, a short phrase translation, or explicitly says not to create a structured prompt. For a trivial task that can be solved directly, answer directly instead of invoking the hub.
 
-## 3. When Not to Use This Skill
-Do not use this skill when:
-- the user only needs a short direct answer;
-- the user only asks to translate a short phrase;
-- the user is having ordinary casual conversation;
-- the user explicitly refuses a structured prompt;
-- the task is small enough that a direct command or one-paragraph answer solves it.
+## 4. How to Use This Skill
+1. Read this `SKILL.md`.
+2. Read `router.md`.
+3. Select one primary branch.
+4. Select auxiliary branches only when they add execution mode, tool adaptation, safety rules, or output format.
+5. Apply `common-principles.md`.
+6. Use `templates.md` plus the branch template to draft the final prompt.
+7. Check with `checklists.md` and the branch checklist.
+8. Use `examples.md` when the request benefits from a concrete pattern.
 
-## 4. Core Prompt Engineering Principles
-- **Use Persona, Task, Context, Format as the base frame.** Persona states the agent role, Task states the verb and result, Context states source facts and boundaries, Format states the exact shape of the output.
-- **Start with an observable verb.** Use verbs such as read, inspect, compare, implement, fix, refactor, test, summarize, extract, convert, validate, or report. Avoid weak verbs such as handle, improve, polish, look at, or help with unless they are followed by concrete outputs.
-- **Bind claims to inputs.** Name files, folders, logs, screenshots, PDFs, URLs, commands, or pasted text. If a fact is not provided, require the agent to mark it as an assumption or ask only blocking questions.
-- **Split related tasks.** If a request contains several outputs or decisions, break it into stages with a target, input, output, and acceptance condition for each stage.
-- **Write constraints explicitly.** Use "must" for hard requirements, "must not" for prohibited actions, "prefer" for ranking, and "unless" for exceptions.
-- **Specify the output before execution starts.** Choose Markdown sections, a table, checklist, JSON, file tree, patch summary, test report, or final report based on the task type.
-- **Add acceptance criteria.** State how the user or agent knows the task is complete.
-- **Add self-checks.** Require checks for missing context, conflicts, hallucinated facts, excessive changes, output-format drift, and unmet acceptance criteria.
-- **Use iterative prompting deliberately.** For follow-up prompts, state what to keep, what to change, and how to judge the new output.
-- **Review generated output before use.** The final prompt must require the agent to check clarity, relevance, and factual support before final delivery.
+## 5. Branch Categories
+- `general-prompt`
+- `software-engineering`
+- `documents-research`
+- `data-analytics`
+- `product-design-business`
+- `ai-systems`
+- `business-operations`
+- `education`
+- `creative-design`
+- `multimodal`
+- `domain-specific`
+- `communication`
+- `automation`
+- `meta`
 
-## 5. Prompt Construction Workflow
+## 6. Branch Index
+### general-prompt
+- `branches/general-prompt/prompt-review.md`：诊断已有 prompt 的缺口，给出评分、风险、改进建议和保留原意的优化版。
+- `branches/general-prompt/prompt-rewrite.md`：把口语化或模糊需求改写成目标 AI 工具可直接执行的任务 prompt。
+- `branches/general-prompt/prompt-expansion.md`：把短 prompt 扩展成包含背景、步骤、约束、验收和风险控制的强执行 prompt。
+- `branches/general-prompt/prompt-compression.md`：压缩过长 prompt，在降低 token 的同时保留目标、关键上下文、硬约束和验收。
+- `branches/general-prompt/prompt-template-builder.md`：把一次性 prompt 抽象成带变量、填写说明、示例和检查表的可复用模板。
 
-| Step | Purpose | Operation | Common Error | Output |
-| --- | --- | --- | --- | --- |
-| 1. Identify task type | Select the correct prompt shape | Classify as code, bug, refactor, plan, document, PDF, visual, CLI, research, or mixed | Using one generic prompt for all tasks | `Task type: ...` |
-| 2. Extract user goal | Define the final result | Rewrite the desired outcome as one sentence with an action verb and object | Keeping "make it better" as the goal | `Goal: ...` |
-| 3. Complete context | Provide source facts and boundaries | Add repo, language, framework, business context, user constraints, and known errors | Asking the agent to infer project facts before reading files | `Context: ...` |
-| 4. Define inputs | Prevent source ambiguity | List exact paths, logs, PDFs, screenshots, pasted text, URLs, or commands | Saying "the file" without naming it | `Inputs: ...` |
-| 5. Split execution stages | Make complex work controllable | Create ordered stages: inspect, analyze, design, implement, test, report | Combining reading, editing, and validation in one vague step | `Steps: 1...` |
-| 6. Set hard constraints | Protect scope and user work | State must, must not, prefer, unless, and approval boundaries | Omitting forbidden actions | `Constraints: ...` |
-| 7. Design output format | Make results machine/user checkable | Pick sections, table, JSON, checklist, code block, file list, or test report | Letting the model choose any format | `Output format: ...` |
-| 8. Add acceptance criteria | Define done | List functional, format, test, safety, and reproducibility checks | Ending at "finish the task" | `Acceptance criteria: ...` |
-| 9. Add risk controls | Reduce unintended damage | Add rollback, minimal-change, no unrelated refactor, dependency, network, or visual-analysis boundaries | Allowing broad rewrites for narrow issues | `Risk controls: ...` |
-| 10. Add self-checks | Catch omissions | Require final review against constraints, inputs, and acceptance criteria | Trusting first output without verification | `Self-check: ...` |
-| 11. Output final prompt | Deliver reusable instruction | Produce a clean prompt without commentary unless requested | Mixing analysis notes into the prompt body | `Final prompt: ...` |
+### software-engineering
+- `branches/software-engineering/plan-mode.md`：为 Codex plan 模式或只分析不执行的开发任务生成规划 prompt。
+- `branches/software-engineering/coding-feature-development.md`：为新功能、前端页面、后端接口、组件和交互逻辑生成开发 prompt。
+- `branches/software-engineering/bugfix-debugging.md`：为报错、构建失败、页面白屏、依赖冲突和 CLI 错误生成排障修复 prompt。
+- `branches/software-engineering/refactor-architecture.md`：为代码重构、模块拆分、架构整理和降低耦合生成 prompt。
+- `branches/software-engineering/test-generation.md`：为单元、集成、E2E、回归测试和覆盖率提升生成测试 prompt。
+- `branches/software-engineering/code-review.md`：为代码质量、安全、性能、可维护性和潜在 bug 审查生成 review prompt。
+- `branches/software-engineering/repository-analysis.md`：为分析整个仓库、识别技术栈、入口、模块和运行方式生成 prompt。
+- `branches/software-engineering/cli-agent.md`：为 Codex CLI、Gemini CLI、Claude Code 等命令行智能体生成带权限、命令和报告边界的 prompt。
+- `branches/software-engineering/security-threat-modeling.md`：为防御性安全审查、威胁建模、权限边界和数据泄露风险分析生成 prompt。
+- `branches/software-engineering/devops-ci.md`：为 CI/CD、GitHub Actions、GitLab CI、Docker 构建、部署、secrets、runner 和回滚策略生成 prompt。
+- `branches/software-engineering/database-migration.md`：为 schema 修改、ORM migration、数据回填、零停机迁移和 rollback 生成 prompt。
+- `branches/software-engineering/api-design.md`：为 REST、GraphQL、OpenAPI、鉴权、错误码、分页、版本和联调生成 API 设计 prompt。
 
-## 6. Prompt Optimization Workflow
-When rewriting an existing prompt:
-1. Identify the original prompt's task type and intended user outcome.
-2. Check whether the target result is observable.
-3. Check whether required context, files, logs, versions, screenshots, or documents are named.
-4. Check whether boundaries are missing: allowed files, forbidden refactors, dependencies, network, visual tools, or destructive actions.
-5. Check whether output format is missing.
-6. Check whether acceptance criteria are missing.
-7. Check whether execution order is missing.
-8. Check whether ambiguous words remain, such as "better", "nice", "quickly", "clean", "fix it", or "summarize well".
-9. Check whether the prompt is too open-ended for one pass.
-10. Rewrite it as a strong execution prompt with role, task, context, inputs, steps, constraints, output format, acceptance criteria, and self-check.
+### documents-research
+- `branches/documents-research/documentation-analysis.md`：为文档总结、会议记录、项目资料和多文档归纳生成结构化分析 prompt。
+- `branches/documents-research/pdf-to-skill.md`：把 PDF 中的方法、案例和注意事项提炼成可复用 skill 的 prompt。
+- `branches/documents-research/research-synthesis.md`：为多来源调研、论文比较、网页资料综合和观点对比生成 prompt。
+- `branches/documents-research/academic-writing.md`：为论文、文献综述、研究计划、学术报告和课程作业生成 prompt。
+- `branches/documents-research/report-writing.md`：为项目报告、实习报告、课程报告、阶段总结和技术文档生成 prompt。
 
-## 7. Plan Mode Prompting Rules
-For Codex plan mode, the prompt must:
-- request analysis before modification;
-- require Codex to read the relevant files first;
-- require Codex to identify risks, unknowns, and likely touched files;
-- require an execution plan with ordered steps;
-- require validation commands or manual verification steps;
-- require explicit pending questions only when a missing answer blocks a safe plan;
-- require waiting for user confirmation before code edits, unless the user explicitly authorizes automatic execution.
+### data-analytics
+- `branches/data-analytics/data-analysis.md`：为数据集、统计分析、实验数据、业务指标、趋势和异常分析生成 prompt。
+- `branches/data-analytics/spreadsheet-analysis.md`：为 Excel、CSV、Google Sheets、财务表、订单表和成绩表分析生成 prompt。
+- `branches/data-analytics/visualization-dashboard.md`：为图表、仪表盘、BI 报告、指标展示和数据可视化生成 prompt。
 
-For plan mode, the prompt must not:
-- ask Codex to immediately rewrite large areas of code;
-- combine planning and implementation in the same unconfirmed step;
-- hide uncertainty behind confident assumptions;
-- omit the files or areas likely to change.
+### product-design-business
+- `branches/product-design-business/product-requirements.md`：为 PRD、MVP、功能规格和用户故事生成 prompt。
+- `branches/product-design-business/ux-ui-design.md`：为界面设计、体验优化、交互流程、设计稿说明和组件规范生成 prompt。
+- `branches/product-design-business/business-strategy.md`：为商业计划、市场分析、竞品分析、增长策略和变现路径生成 prompt。
+- `branches/product-design-business/marketing-content.md`：为广告文案、短视频脚本、小红书、邮件营销和 SEO 内容生成 prompt。
 
-## 8. Complex Task Decomposition Rules
-Break complex tasks into these stages when applicable:
-- **Requirement clarification:** target, non-goals, constraints, unknowns.
-- **File scan:** paths, configs, entry points, tests, assets, docs.
-- **Current-state analysis:** existing behavior, failure mode, dependencies.
-- **Solution design:** smallest coherent change, alternatives, risk tradeoffs.
-- **Minimal implementation:** scoped edits only.
-- **Test verification:** automated tests, build, lint, visual/manual checks.
-- **Issue repair:** fix failures caused by the change.
-- **Documentation update:** only when user-facing behavior or workflow changes.
-- **Final report:** changed files, verification result, residual risks.
+### multimodal
+- `branches/multimodal/visual-image-analysis.md`：为图片、截图、设计稿、图像题目和页面视觉问题分析生成 prompt。
+- `branches/multimodal/video-audio-analysis.md`：为视频总结、音频转写、会议录音、课程视频和时间轴笔记生成 prompt。
+- `branches/multimodal/visual-3d-interaction.md`：为 Spline、Blender、3D 网页、交互动画、拖拽和视觉对齐任务生成 prompt。
 
-Each stage must state:
-- target;
-- inputs;
-- output;
-- acceptance condition.
+### ai-systems
+- `branches/ai-systems/knowledge-base-rag.md`：为知识库、RAG、embedding、向量数据库、检索、rerank、引用和防幻觉生成 prompt。
 
-## 9. Context Gathering Rules
-For code and repository tasks, instruct Codex to gather context in this order:
-1. Read the user-specified paths.
-2. Read README or project docs when available.
-3. Read project config such as `package.json`, `pyproject.toml`, `vite.config.js`, `tsconfig.json`, lockfiles, or test config.
-4. Read relevant source files, tests, and error logs.
-5. Search with targeted keywords when the entry point is unclear.
-6. For PDF or document tasks, read the table of contents, headings, representative sections, and task-relevant excerpts before extraction.
-7. For visual tasks, inspect screenshots, object names, camera/view constraints, and reproduction steps before changing UI or 3D logic.
+### business-operations
+- `branches/business-operations/customer-service-qa.md`：为客服对话质检、工单分析、服务评分、违规话术和坐席改进建议生成 prompt。
+- `branches/business-operations/recruiting-evaluation.md`：为简历筛选、面试评估、岗位匹配、候选人打分和偏见控制生成 prompt。
 
-Do not ask Codex to guess project structure, framework behavior, or file contents when local context can be read.
+### education
+- `branches/education/curriculum-design.md`：为课程大纲、学习路径、训练营、作业、评估标准和教学活动生成 prompt。
 
-## 10. Constraint Writing Rules
-- Use **must** for non-negotiable requirements.
-- Use **must not** for prohibited actions.
-- Use **prefer** for ranking when more than one valid approach exists.
-- Use **unless** for explicit exceptions.
-- Write paths, commands, framework versions, dependency rules, and environment constraints literally.
-- For network search, dependency installation, browser automation, visual analysis, and destructive commands, state when they are allowed and whether approval is required.
-- For Windows/WSL paths, include both the user path and expected WSL path when known.
+### creative-design
+- `branches/creative-design/game-design.md`：为游戏概念、核心玩法、机制、关卡、GDD 和可测试原型范围生成 prompt。
 
-## 11. Output Format Design Rules
+### domain-specific
+- `branches/domain-specific/legal-policy-review.md`：为合同、政策、条款风险、合规和隐私政策分析生成安全边界 prompt。
+- `branches/domain-specific/medical-health-info.md`：为健康信息解释、症状整理、就医准备、医学资料和体检报告解释生成安全 prompt。
+- `branches/domain-specific/finance-investment-analysis.md`：为财务分析、投资研究、股票/基金/加密资产和预算规划生成风险受控 prompt。
+- `branches/domain-specific/education-tutoring.md`：为学习计划、题目讲解、考试复习、课程辅导和知识点拆解生成 prompt。
 
-| Task Type | Preferred Output |
-| --- | --- |
-| Plan mode | Markdown sections: findings, risks, plan, files, validation, questions |
-| Bug fix | cause, changed files, patch summary, tests, residual risk |
-| Refactor | scope table, behavior preserved, staged plan, regression tests |
-| Document/PDF analysis | sectioned report, extracted rules, uncertain items, citations or page markers when available |
-| Prompt rewriting | final prompt in one fenced block, then optional rationale |
-| Data extraction | JSON or table with schema stated first |
-| CLI execution | commands, expected output, failure handling |
-| Visual/3D/interaction | target behavior, object names, viewport, interaction rules, screenshot/manual checks |
-| Final completion | files changed, validation run, result, remaining issues |
+### communication
+- `branches/communication/translation-localization.md`：为翻译、本地化、润色、双语对照和语气改写生成 prompt。
+- `branches/communication/roleplay-simulation.md`：为面试、谈判、客服、销售话术和口语练习生成多轮模拟 prompt。
 
-## 12. Acceptance Criteria Design Rules
-Acceptance criteria must answer:
-- Is the requested function or artifact complete?
-- Does it obey the constraints and prohibited actions?
-- Did required tests, builds, lint, screenshots, or manual checks run?
-- Did the change avoid breaking existing behavior?
-- Were specified files created or modified?
-- Can the user reproduce the result?
-- Can the user inspect the output format directly?
-- Is there a failure-handling path or next repair step?
+### automation
+- `branches/automation/automation-workflow.md`：为自动化脚本、Zapier、Make、n8n、定时任务和数据同步生成流程 prompt。
 
-## 13. Self-Check and Iteration Rules
-Before finalizing a generated prompt, require a self-check:
-- Goal is concrete and contains an action verb.
-- Inputs are named or missing inputs are marked.
-- Steps are ordered and executable.
-- Constraints do not conflict.
-- Output format is explicit.
-- Acceptance criteria are testable.
-- Unrelated changes are prohibited.
-- Claims are grounded in supplied or readable context.
-- If verification fails, the agent must report the failing command/check and the next fix step.
+### meta
+- `branches/meta/meta-skill-builder.md`：把流程、知识、文档或经验提炼为新的可复用 AI skill。
 
-For iterative follow-up prompts, state:
-- what existing output must be preserved;
-- what must change;
-- what new constraint or context is being added;
-- what acceptance criterion decides success.
-
-## 14. Common Prompt Problems and Fixes
-
-| Problem | Risk | Fix | Example Rewrite |
-| --- | --- | --- | --- |
-| Vague goal | Agent chooses the wrong target | Replace vague wording with action + object + result | `Refactor the auth middleware to remove duplicated token parsing while preserving response codes.` |
-| Missing context | Agent guesses | Name repo, path, logs, inputs, and environment | `Work in /repo/app. Read package.json, src/auth.ts, and the pasted stack trace first.` |
-| Task too large | Low-quality broad changes | Split into stages with approval points | `First analyze and propose a plan; do not edit files until confirmation.` |
-| No output format | Hard to review | Specify sections, table, JSON, checklist, or report | `Return a table with file, issue, severity, and fix.` |
-| No constraints | Scope creep | Add must/must not/prefer/unless | `Must not introduce dependencies or rewrite unrelated components.` |
-| No acceptance criteria | "Done" is unclear | Add functional, test, and format checks | `Done when npm test passes and the report lists changed files.` |
-| No execution order | Agent edits too soon | Require read, analyze, plan, implement, verify | `Read related files, explain cause, then patch the smallest file set.` |
-| No negative instructions | Agent removes needed behavior | Name protected behavior and files | `Must preserve existing keyboard shortcuts and saved settings.` |
-| Summary written as development | Agent modifies files | State read-only mode | `Analyze the PDF and produce rules; do not edit source code.` |
-| Plan written as execution | Agent changes files in plan mode | Add confirmation boundary | `Output a plan and wait for approval before edits.` |
-| Visual task lacks observable detail | Agent cannot verify UI | Name object, viewport, interaction, screenshot checks | `On 1440x900, dragging knob A clockwise must increase value 0-100 without moving knob B.` |
-| Code task lacks path or logs | Search is too broad | Include paths, reproduction, logs, tests | `Bug occurs in src/router.ts after running npm test; use the pasted error as primary evidence.` |
-
-## 15. Reusable Prompt Templates
-Detailed copy-ready templates live in [templates.md](templates.md). Load that file when the user asks for a full prompt or when the task is complex.
-
-Available templates:
-- 15.1 通用 Codex 任务 Prompt 模板
-- 15.2 Prompt 优化模板
-- 15.3 代码修复 Prompt 模板
-- 15.4 项目重构 Prompt 模板
-- 15.5 文档阅读与总结 Prompt 模板
-- 15.6 PDF 深度分析 Prompt 模板
-- 15.7 复杂功能开发 Prompt 模板
-- 15.8 多阶段迭代 Prompt 模板
-- 15.9 Plan 模式任务规划 Prompt 模板
-- 15.10 视觉/3D/交互任务 Prompt 模板
-
-## 16. Codex-Specific Rules
-- Prefer the existing project stack, helpers, style, and tests.
-- Read related files before modifying code.
-- Do not create unrelated structure.
-- Do not rewrite broad areas when a local fix is sufficient.
-- Do not delete user functionality or user changes.
-- Do not add dependencies without a stated need and user-compatible install path.
-- Do not ignore logs, failing commands, or reproduction steps.
-- Treat Windows and WSL paths carefully; preserve spaces and parentheses in paths.
-- For npm, Vite, Vue, Spline, Blender, and similar projects, preserve existing interaction flow and asset references unless the task explicitly changes them.
-- Strictly honor user constraints such as "do not use visual analysis components" or "plan only".
-
-## 17. Examples
-Full examples live in [examples.md](examples.md). Load that file when the user asks for examples or when a rewrite would benefit from a concrete pattern.
-
-Examples included:
-- User asks to make a prompt better for Codex.
-- User asks to fix a Vue project error.
-- User asks to read a PDF and turn its methods into a skill.
-- User asks to build a 3D interaction such as knob dragging.
-
-## 18. Final Checklist
-Use this checklist before returning a prompt:
-- Clear task goal.
-- Working directory or execution context.
-- Input materials named.
-- Ordered execution steps.
-- Hard constraints.
-- Prohibited actions.
-- Output format.
-- Acceptance criteria.
-- Self-check requirements.
-- No unresolved vague expressions.
-- Directly executable by Codex.
-- Fits the task type.
-- Avoids broad unrelated changes.
-- Marks uncertain information.
-
-Additional checklists live in [checklists.md](checklists.md).
+## 7. Final Prompt Quality Standard
+A final prompt must have a clear objective, sufficient context, named input materials, ordered execution steps, strong constraints, explicit output format, checkable acceptance criteria, risk and uncertainty handling, and target-tool adaptation. It must be ready to hand to the target AI tool without requiring the tool to guess the task, the source materials, the boundaries, or the definition of done.

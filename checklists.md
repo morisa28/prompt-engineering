@@ -1,102 +1,276 @@
 # Prompt Quality Checklists
 
-Use these checklists after drafting or rewriting a prompt. A prompt fails if any required item for its task type is missing.
+任何 prompt 生成后必须用通用检查表和对应分支检查表自检。每一项都应能回答“是/否”。
 
-## A. Final Prompt Qualification Checklist
+## 1. 通用 prompt 质量检查表
 
-- [ ] The task goal is explicit and contains an action verb.
-- [ ] The working directory, environment, or target platform is named.
-- [ ] Input materials are named: files, folders, logs, PDFs, screenshots, URLs, pasted text, or commands.
-- [ ] Execution steps are ordered.
-- [ ] Hard constraints use must/must not language.
-- [ ] Prohibited actions are stated.
-- [ ] Output format is specified.
-- [ ] Acceptance criteria are testable.
-- [ ] Self-check requirements are included.
-- [ ] Vague words are removed or defined with measurable criteria.
-- [ ] The prompt can be handed directly to Codex or the target agent.
-- [ ] The prompt matches the task type.
-- [ ] The prompt prevents unrelated broad changes.
-- [ ] Uncertain information is marked as an assumption or a blocking question.
+- [ ] 目标包含动作、对象、结果
+- [ ] 背景和输入材料可定位
+- [ ] 执行步骤有顺序
+- [ ] 必须/禁止/优先/除非边界明确
+- [ ] 输出格式有字段或章节
+- [ ] 验收标准能判断是/否
+- [ ] 不确定信息被标注
+- [ ] 目标工具差异已适配
 
-## B. Prompt Optimization Checklist
+## 2. prompt review 检查表
 
-- [ ] Original intent is preserved.
-- [ ] Missing context is marked as `[待补充: ...]`.
-- [ ] The rewritten prompt states role, task, context, and format.
-- [ ] The rewritten prompt includes specific inputs and source boundaries.
-- [ ] The rewritten prompt includes execution order.
-- [ ] The rewritten prompt includes constraints and non-goals.
-- [ ] The rewritten prompt includes acceptance criteria.
-- [ ] The rewritten prompt includes final self-check.
-- [ ] Open-ended work is split into stages.
-- [ ] Plan-only requests include a no-edit rule.
+- [ ] 先诊断再重写
+- [ ] 八个维度全部评分
+- [ ] 每个问题有风险和修复方式
+- [ ] 歧义点单列
+- [ ] 优化版保留原意
+- [ ] 改动理由清楚
 
-## C. Plan Mode Checklist
+## 3. prompt rewrite 检查表
 
-- [ ] Prompt says "analyze and plan only".
-- [ ] Prompt says "do not modify files".
-- [ ] Prompt lists files or directories to read first.
-- [ ] Prompt asks for current-state analysis.
-- [ ] Prompt asks for risk points and unknowns.
-- [ ] Prompt asks for likely modified files.
-- [ ] Prompt asks for verification commands or manual checks.
-- [ ] Prompt requires user confirmation before edits.
-- [ ] Prompt separates blocking questions from assumptions.
+- [ ] 原意未改变
+- [ ] 模糊词已替换为动作
+- [ ] 缺失信息用待补充标记
+- [ ] 阻塞问题单列
+- [ ] 输出 prompt 可直接复制
+- [ ] 目标工具适配完成
 
-## D. Code Task Checklist
+## 4. prompt expansion 检查表
 
-- [ ] Repository path is named.
-- [ ] Framework/language/runtime is named or discoverable from specified config files.
-- [ ] Error logs or reproduction steps are included for bugs.
-- [ ] Relevant files and tests are listed or search rules are stated.
-- [ ] Modification boundary is explicit.
-- [ ] Unrelated refactors and dependency additions are prohibited.
-- [ ] Verification command is specified.
-- [ ] Final report must include changed files and test results.
+- [ ] 目标、背景、输入、步骤、约束、输出、验收齐全
+- [ ] 默认假设单列
+- [ ] 扩展内容服务原目标
+- [ ] 复杂任务已分阶段
+- [ ] 风险控制明确
 
-## E. Document/PDF Task Checklist
+## 5. prompt compression 检查表
 
-- [ ] Document path is named.
-- [ ] Reading range or full-document requirement is stated.
-- [ ] The prompt requires structure reading before content extraction.
-- [ ] The prompt asks for methods, rules, templates, examples, and uncertain items when the task is knowledge extraction.
-- [ ] The prompt prohibits simple chapter summaries when the target is a reusable artifact.
-- [ ] Output sections are specified.
-- [ ] Page markers, section titles, or other traceable references are requested when available.
+- [ ] 目标未变
+- [ ] 关键上下文保留
+- [ ] 硬约束和禁止事项保留
+- [ ] 输出格式保留
+- [ ] 验收标准保留
+- [ ] 删减说明完整
 
-## F. Visual/3D/Interaction Checklist
+## 6. Codex 开发任务检查表
 
-- [ ] Target visual effect is observable.
-- [ ] Current abnormal behavior is described or marked as unknown.
-- [ ] Object/component/asset names are listed.
-- [ ] Viewport, initial camera, device, or screenshot requirement is stated.
-- [ ] Interaction trigger and expected response are stated.
-- [ ] Existing interactions and assets that must remain unchanged are listed.
-- [ ] Visual analysis and browser automation boundaries are explicit.
-- [ ] Manual verification steps are provided when automated visual checks are unavailable.
+- [ ] 工作目录明确
+- [ ] 先读文件后修改
+- [ ] 相关文件和配置列出
+- [ ] 修改边界明确
+- [ ] 禁止无关重构
+- [ ] 验证命令明确
+- [ ] 最终报告含改动文件
 
-## G. Multi-Stage Task Checklist
+## 7. plan mode 检查表
 
-- [ ] Each stage has a target.
-- [ ] Each stage has inputs.
-- [ ] Each stage has actions.
-- [ ] Each stage has outputs.
-- [ ] Each stage has acceptance criteria.
-- [ ] Stage transitions are explicit.
-- [ ] Failure handling is stated.
-- [ ] The final report aggregates stage status, files changed, validation, and residual risk.
+- [ ] 写明只分析不修改
+- [ ] 列先读文件
+- [ ] 输出风险和未知
+- [ ] 列预计修改文件
+- [ ] 列验证方式
+- [ ] 要求用户确认后再执行
 
-## H. Vague Phrase Repair Checklist
+## 8. bugfix/debugging 检查表
 
-Replace vague wording with operational language:
+- [ ] 完整日志或缺失项明确
+- [ ] 复现步骤明确
+- [ ] 环境信息明确
+- [ ] 先定位根因
+- [ ] 最小修复
+- [ ] 禁止无关重构
+- [ ] 修复后验证原失败路径
 
-| Vague Phrase | Replace With |
-| --- | --- |
-| `帮我看看` | `读取 [path/log]，定位 [issue] 的根因，并输出修复方案。` |
-| `修一下` | `修复 [error/behavior]，复现步骤是 [steps]，验证命令是 [command]。` |
-| `写好一点` | `将输出改为 [tone/audience/length/format]，保留 [content]，删除 [content]。` |
-| `总结一下` | `按 [sections] 提取 [facts/methods/risks/actions]，标注不确定内容。` |
-| `做得更详细` | `增加 [context/steps/constraints/acceptance/tests]，每项必须可检查。` |
-| `像专业的` | `面向 [audience]，使用 [tone]，包含 [required sections]，禁止 [style/content]。` |
-| `优化 prompt` | `诊断目标、上下文、边界、输出、验收和自检缺口，并重写为强执行 prompt。` |
+## 9. repository analysis 检查表
+
+- [ ] README 已读
+- [ ] 配置文件已读
+- [ ] 目录树输出
+- [ ] 技术栈有证据
+- [ ] 核心模块说明
+- [ ] 不修改文件
+- [ ] 事实和推断分开
+
+## 10. documentation analysis 检查表
+
+- [ ] 文档路径明确
+- [ ] 建立索引
+- [ ] 按主题归纳
+- [ ] 事实/推断/不确定分开
+- [ ] 行动项可执行
+- [ ] 引用来源清楚
+
+## 11. research synthesis 检查表
+
+- [ ] 研究问题明确
+- [ ] 来源列表完整
+- [ ] 观点矩阵输出
+- [ ] 证据绑定结论
+- [ ] 冲突和限制列出
+- [ ] 不编造引用
+
+## 12. data analysis 检查表
+
+- [ ] 数据来源明确
+- [ ] 字段和口径说明
+- [ ] 缺失/异常/重复检查
+- [ ] 分析步骤可复现
+- [ ] 结论有数据支持
+- [ ] 限制和下一步输出
+
+## 13. spreadsheet analysis 检查表
+
+- [ ] 表名和表头读取
+- [ ] 原始数据保留
+- [ ] 缺失和异常记录
+- [ ] 汇总维度明确
+- [ ] 公式/透视/图表可复现
+- [ ] 报告口径一致
+
+## 14. visualization/dashboard 检查表
+
+- [ ] 受众和目标明确
+- [ ] 指标口径定义
+- [ ] 字段映射完整
+- [ ] 图表类型匹配数据
+- [ ] 布局和筛选器明确
+- [ ] 误导性可视化已排除
+
+## 15. product requirements 检查表
+
+- [ ] 用户画像明确
+- [ ] 使用场景明确
+- [ ] MVP 与后续分开
+- [ ] 用户故事完整
+- [ ] 验收标准可测试
+- [ ] 非目标列出
+
+## 16. UX/UI design 检查表
+
+- [ ] 目标用户和任务明确
+- [ ] 信息架构清楚
+- [ ] 主流程和异常流程覆盖
+- [ ] 组件状态完整
+- [ ] 响应式要求明确
+- [ ] 可用性检查可执行
+
+## 17. multimodal analysis 检查表
+
+- [ ] 输入媒体明确
+- [ ] 观察重点明确
+- [ ] 事实和推断分开
+- [ ] 空间/时间信息具体
+- [ ] 不确定区域标注
+- [ ] 输出结构匹配任务
+
+## 18. legal/medical/finance high-risk 检查表
+
+- [ ] 安全声明明确
+- [ ] 专业意见边界清楚
+- [ ] 来源或材料绑定
+- [ ] 不确定性标注
+- [ ] 高风险行动建议谨慎
+- [ ] 建议专业人士确认
+
+## 19. automation workflow 检查表
+
+- [ ] 触发条件明确
+- [ ] 输入输出明确
+- [ ] 节点和字段映射完整
+- [ ] 失败分支和重试存在
+- [ ] 日志和通知存在
+- [ ] 凭证不写死
+- [ ] 测试步骤明确
+
+## 20. meta skill builder 检查表
+
+- [ ] 触发和不适用场景明确
+- [ ] 规则可执行
+- [ ] 模板可复制
+- [ ] 检查表能判断是/否
+- [ ] 示例具体
+- [ ] 维护说明存在
+- [ ] 模拟测试通过
+## 21. DevOps / CI Prompt 检查表
+
+- [ ] 是否明确了 CI 平台和部署目标？
+- [ ] 是否要求先读取现有 CI、Docker、部署和依赖配置？
+- [ ] 是否明确构建命令、测试命令和 package manager？
+- [ ] 是否禁止写入或输出真实 secrets？
+- [ ] 是否区分本地构建失败和 CI/runner 环境失败？
+- [ ] 是否覆盖 cache、依赖安装、权限和 runner 环境？
+- [ ] 是否区分 staging 与 production？
+- [ ] 是否提供 pipeline 验证和 rollback 方案？
+
+## 22. Database Migration Prompt 检查表
+
+- [ ] 是否明确数据库类型和 migration 工具？
+- [ ] 是否要求读取当前 schema 和 migration 历史？
+- [ ] 是否区分 schema migration 和 data migration？
+- [ ] 是否识别删除、重命名、类型变更、not null、unique、foreign key 等破坏性变更？
+- [ ] 是否评估数据量、大表锁表和线上影响？
+- [ ] 是否要求备份状态和 rollback 方案？
+- [ ] 是否默认生产数据库只 plan、不直接执行？
+- [ ] 是否要求 staging 测试和数据一致性验证？
+
+## 23. API Design Prompt 检查表
+
+- [ ] 是否明确 API 使用者和核心用例？
+- [ ] 是否定义资源模型、请求字段和响应字段？
+- [ ] 是否定义鉴权方式和权限边界？
+- [ ] 是否定义错误码和统一错误响应？
+- [ ] 是否定义分页、排序、过滤、幂等性和限流规则？
+- [ ] 是否说明版本策略和向后兼容？
+- [ ] 是否输出 OpenAPI 或接口表格？
+- [ ] 是否提供示例请求、示例响应和测试场景？
+
+## 24. Knowledge Base / RAG Prompt 检查表
+
+- [ ] 是否明确知识源、文档类型和目标用户？
+- [ ] 是否明确问答范围和不回答范围？
+- [ ] 是否定义 chunk 策略、overlap、metadata 和版本管理？
+- [ ] 是否定义 embedding、向量库、检索和 rerank 策略？
+- [ ] 是否要求回答带引用？
+- [ ] 是否定义检索不到依据时的拒答或澄清规则？
+- [ ] 是否覆盖权限控制、更新机制和审计？
+- [ ] 是否设计评估问题和命中率、引用准确率、拒答准确率指标？
+
+## 25. Customer Service QA Prompt 检查表
+
+- [ ] 是否明确业务场景、服务渠道和输出读者？
+- [ ] 是否明确质检维度和评分标准？
+- [ ] 是否要求每个评分点引用对话证据？
+- [ ] 是否区分事实、推断和建议？
+- [ ] 是否明确隐私脱敏要求？
+- [ ] 是否避免无依据评价员工或人身评价？
+- [ ] 是否输出结构化评分表？
+- [ ] 是否给出可执行改进建议和替代话术？
+
+## 26. Recruiting Evaluation Prompt 检查表
+
+- [ ] 是否明确 JD、必备条件和加分项？
+- [ ] 是否明确候选人简历和面试记录来源？
+- [ ] 是否要求每个判断引用材料证据？
+- [ ] 是否区分 must-have、nice-to-have 和待验证项？
+- [ ] 是否禁止基于受保护属性推断？
+- [ ] 是否避免绝对录用或淘汰结论？
+- [ ] 是否输出结构化评分和风险？
+- [ ] 是否给出后续面试问题并声明 AI 仅辅助决策？
+
+## 27. Curriculum Design Prompt 检查表
+
+- [ ] 是否明确学习者画像和先修知识？
+- [ ] 是否把学习目标写成可观察能力？
+- [ ] 是否明确课程周期和授课形式？
+- [ ] 是否按模块设计目标、活动、练习、作业和验收？
+- [ ] 是否体现难度递进？
+- [ ] 是否设计阶段性反馈？
+- [ ] 是否包含最终项目或学习成果？
+- [ ] 是否提供评估标准或评分 rubric？
+
+## 28. Game Design Prompt 检查表
+
+- [ ] 是否明确游戏类型、平台和目标玩家？
+- [ ] 是否定义核心玩法循环？
+- [ ] 是否说明玩家目标、操作、反馈和奖励？
+- [ ] 是否区分概念设计、机制设计和实现需求？
+- [ ] 是否定义胜利条件和失败条件？
+- [ ] 是否说明关卡结构和难度曲线？
+- [ ] 是否输出可测试原型范围？
+- [ ] 是否提供 playtest 验收标准和迭代指标？

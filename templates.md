@@ -1,473 +1,624 @@
 # Reusable Prompt Templates
 
-Replace bracketed placeholders before use. Keep the sections that match the task; delete only sections that are irrelevant and not required by the user.
+这些模板跨分支复用；分支文件中的模板会补充场景变量和专属约束。替换 `{{variable}}` 后可直接使用。
 
-## 15.1 通用 Codex 任务 Prompt 模板
+## 1. 通用高质量 Prompt 模板
 
+**使用场景**：任何需要结构化 AI 任务的场景。
+
+**可替换变量**：
+- {{task_goal}}
+- {{context}}
+- {{input_materials}}
+- {{constraints}}
+- {{output_format}}
+- {{acceptance_criteria}}
+
+**模板正文**：
 ```text
-你是 Codex，请在以下工作目录中完成任务：
-工作目录：[absolute_or_relative_path]
-
-任务目标：
-[用一个可验证的句子描述最终结果。必须包含动作动词和目标对象。]
-
-当前问题：
-[说明现在的异常、缺口、用户需求或待完成事项。没有问题背景时写“无已知异常，按任务目标执行”。]
-
-输入材料：
-- 用户指定路径：[paths]
-- 相关文件或目录：[files_or_dirs]
-- 日志/报错/截图/PDF/文档：[materials]
-- 已知约束：[constraints_from_user]
-
-执行步骤：
-1. 先读取用户指定路径和相关配置文件，确认项目结构、技术栈和现有实现。
-2. 分析任务影响范围，列出需要修改或创建的文件。
-3. 设计最小可行方案，说明关键取舍和风险。
-4. 按最小改动实现，不改无关文件。
-5. 运行或说明验证方式，包括测试、构建、lint、截图或人工检查。
-6. 如果验证失败，修复由本次改动引入的问题；如果失败与任务无关，报告证据和下一步。
-7. 输出完成报告。
-
-约束条件：
-- 必须优先沿用项目现有技术栈、风格和辅助函数。
-- 必须在修改前读取相关文件。
-- 禁止删除用户已有功能或未授权的大范围重构。
-- 禁止引入新依赖，除非说明必要性并获得用户许可。
-- 禁止把未读取的文件内容写成确定事实。
-- 对不确定信息必须标注“假设”或提出阻塞问题。
-
-输出格式：
-请使用 Markdown，包含：
-1. 任务理解
-2. 执行计划或已执行步骤
-3. 修改文件清单
-4. 验证结果
-5. 剩余风险或需要用户确认的问题
-
-验收标准：
-- 任务目标对应的功能或产物已完成。
-- 输出文件、代码或报告符合指定格式。
-- 约束条件全部满足。
-- 验证命令或人工检查步骤已执行或给出无法执行的原因。
-- 没有无关修改。
-
-自检要求：
-最终回答前检查目标、输入、步骤、约束、输出格式、验收标准是否全部覆盖；检查是否存在猜测、遗漏、冲突或过度修改。
+你是 {{target_ai_tool}}。
+任务目标：{{task_goal}}
+背景：{{context}}
+输入材料：{{input_materials}}
+执行步骤：先读取输入，分析问题，设计方案，执行任务，验证结果，输出报告。
+约束：{{constraints}}
+输出格式：{{output_format}}
+验收标准：{{acceptance_criteria}}
+自检：检查目标、输入、约束、输出和验收是否全部满足。
 ```
 
-## 15.2 Prompt 优化模板
+**填写说明**：用一句话写目标；输入材料必须可定位；约束必须包含禁止事项。
 
+**质量检查点**：
+- [ ] 目标可观察
+- [ ] 输入可定位
+- [ ] 验收可判断
+
+## 2. Prompt Review 模板
+
+**使用场景**：用户已有 prompt 并要求诊断。
+
+**可替换变量**：
+- {{original_prompt}}
+- {{target_ai_tool}}
+- {{expected_result}}
+- {{known_failures}}
+
+**模板正文**：
 ```text
-请把下面的原始需求改写为更适合 [Codex/Gemini CLI/Claude Code/other] 执行的强执行 prompt。
-
-原始需求：
-[paste_original_prompt]
-
-目标平台：
-[target_agent_or_tool]
-
-目标任务类型：
-[code_fix/refactor/feature/doc_analysis/pdf_analysis/plan/visual/other]
-
-必须补全的结构：
-- 工作目录或执行环境
-- 任务目标
-- 输入材料
-- 执行步骤
-- 硬性约束
-- 禁止事项
-- 输出格式
-- 验收标准
-- 自检要求
-
-重写规则：
-1. 保留用户真实意图，不加入无依据的新需求。
-2. 把模糊词替换为可执行动作和可检查结果。
-3. 如果缺少必要上下文，用 `[待补充: ...]` 标记；只有阻塞安全执行时才提出问题。
-4. 对不确定事实使用“假设”标记。
-5. 如果任务过大，拆成阶段并给每个阶段写目标、输入、输出和验收标准。
-6. 如果是 plan 模式，必须要求先分析、列风险、列文件、列验证方式，并等待确认后再修改。
-
-输出格式：
-- 先列出“原 prompt 的主要问题”，每条包含风险和修复方式。
-- 再输出“重写后的 prompt”，放在一个 fenced text 代码块中。
-- 最后给出“可选补充信息清单”，只列会影响执行结果的信息。
+请评审以下 prompt：{{original_prompt}}
+目标工具：{{target_ai_tool}}
+期望结果：{{expected_result}}
+已知问题：{{known_failures}}
+先按目标、上下文、输入、约束、输出格式、验收标准、风险控制、自检八项评分；再列问题、风险、修复方式和歧义点；最后给出保留原意的优化版。
 ```
 
-## 15.3 代码修复 Prompt 模板
+**填写说明**：不要直接重写；先诊断。缺失信息用待补充标记。
 
+**质量检查点**：
+- [ ] 八项维度齐全
+- [ ] 每个问题有修复方式
+- [ ] 优化版保留原意
+
+## 3. Prompt Rewrite 模板
+
+**使用场景**：把口语化需求改写为可执行 prompt。
+
+**可替换变量**：
+- {{raw_request}}
+- {{target_ai_tool}}
+- {{task_domain}}
+- {{must_keep}}
+
+**模板正文**：
 ```text
-你是 Codex，请修复以下代码问题。
-
-工作目录：
-[path]
-
-报错信息：
-[paste_error_log]
-
-复现步骤：
-1. [command_or_action]
-2. [expected]
-3. [actual]
-
-相关文件：
-- [file_1]
-- [file_2]
-- [test_file_or_config]
-
-排查步骤：
-1. 读取报错栈、相关源码、测试和配置文件。
-2. 找到根因，说明错误来自代码、配置、依赖、环境还是数据。
-3. 制定最小修复方案。
-4. 修改必要文件，禁止无关重构、格式化全仓库或改动未涉及功能。
-5. 运行验证命令：[test_command/build_command/lint_command]。
-6. 如果验证失败，继续修复由本次改动引入的问题，并报告最终状态。
-
-修改边界：
-- 必须保持现有公开 API、路由、UI 文案或数据格式不变，除非修复必须改变。
-- 禁止删除测试或降低断言强度来掩盖问题。
-- 禁止引入新依赖，除非修复无法在现有依赖下完成并获得许可。
-
-输出格式：
-- 根因
-- 修改文件
-- 关键改动
-- 验证结果
-- 剩余风险
-
-验收标准：
-- 报错复现路径不再失败。
-- 指定验证命令通过，或无法运行时给出具体原因。
-- 无无关文件修改。
-- 修改范围与根因匹配。
+请将以下需求改写为 {{target_ai_tool}} 可执行 prompt：{{raw_request}}
+任务领域：{{task_domain}}
+必须保留：{{must_keep}}
+改写时补齐目标、背景、输入、步骤、约束、输出格式、验收标准和自检。不确定信息标注为待补充。
 ```
 
-## 15.4 项目重构 Prompt 模板
+**填写说明**：只补执行必需信息，不添加新目标。
 
+**质量检查点**：
+- [ ] 原意保留
+- [ ] 目标工具已适配
+- [ ] 缺失信息已标注
+
+## 4. Prompt Expansion 模板
+
+**使用场景**：把短 prompt 扩成强执行 prompt。
+
+**可替换变量**：
+- {{short_prompt}}
+- {{target_ai_tool}}
+- {{known_context}}
+- {{task_scope}}
+
+**模板正文**：
 ```text
-你是 Codex，请按以下边界执行项目重构。
-
-工作目录：
-[path]
-
-重构目标：
-[remove_duplication/improve_module_boundary/rename_api/split_component/etc]
-
-必须保持不变的行为：
-- [behavior_1]
-- [behavior_2]
-- [public_api_or_ui_contract]
-
-允许修改范围：
-- [dir_or_file_1]
-- [dir_or_file_2]
-
-禁止修改范围：
-- [file_or_module]
-- [generated_assets_or_user_content]
-
-分阶段执行：
-1. 扫描相关文件和测试，列出当前结构问题。
-2. 提出最小重构方案，说明会修改哪些文件和为什么。
-3. 实施重构，保持外部行为不变。
-4. 更新或补充测试，仅覆盖受影响行为。
-5. 运行回归测试：[commands]。
-6. 输出行为保持证明和风险说明。
-
-风险控制：
-- 禁止混入功能变化。
-- 禁止全仓库格式化。
-- 如果发现重构需要扩大范围，先停止并报告原因。
-
-输出格式：
-请输出表格：文件、改动、保持不变的行为、验证方式。
-
-验收标准：
-- 重构目标达成。
-- 指定行为保持不变。
-- 回归测试通过或无法执行原因明确。
-- 改动范围不超过允许范围。
+请扩展短 prompt：{{short_prompt}}
+目标工具：{{target_ai_tool}}
+已知背景：{{known_context}}
+范围：{{task_scope}}
+扩展为包含目标、背景、输入、阶段、硬约束、输出格式、验收标准、风险控制和自检的完整 prompt。列出默认假设。
 ```
 
-## 15.5 文档阅读与总结 Prompt 模板
+**填写说明**：扩展只能服务原目标；默认假设集中列出。
 
+**质量检查点**：
+- [ ] 未改变原意
+- [ ] 阶段可执行
+- [ ] 风险和验收齐全
+
+## 5. Prompt Compression 模板
+
+**使用场景**：过长 prompt 需要降 token。
+
+**可替换变量**：
+- {{long_prompt}}
+- {{target_length}}
+- {{must_preserve}}
+- {{compression_level}}
+
+**模板正文**：
 ```text
-你是 Codex，请阅读并分析以下文档。
-
-文档路径：
-[paths]
-
-阅读范围：
-- 必读章节或页码：[range]
-- 可低优先级章节：[range_or_none]
-
-提取重点：
-- [topic_1]
-- [topic_2]
-- [rules/methods/risks/examples]
-
-执行步骤：
-1. 先识别文档结构：目录、标题、章节、附录、表格。
-2. 再读取与任务直接相关的章节。
-3. 提取事实、方法、规则、案例、反例和不确定内容。
-4. 将内容转化为用户指定用途：[report/checklist/templates/skill/tasks]。
-5. 标注无法从文档确认的信息。
-
-输出结构：
-- 文档结构概览
-- 与任务相关的核心内容
-- 可执行规则或方法
-- 示例或反例
-- 不确定内容
-- 下一步建议
-
-引用方式：
-[page_numbers/section_titles/file_paths/line_numbers_if_available]
-
-验收标准：
-- 输出不只是章节摘要。
-- 结论能回溯到文档内容。
-- 不确定内容已标注。
-- 输出结构符合用户要求。
+请压缩以下 prompt：{{long_prompt}}
+目标长度：{{target_length}}
+不可删除：{{must_preserve}}
+压缩级别：{{compression_level}}
+保留目标、关键上下文、硬约束、输出格式和验收标准；删除重复解释和空泛说明；输出压缩版和删减说明。
 ```
 
-## 15.6 PDF 深度分析 Prompt 模板
+**填写说明**：先锁定禁止事项和验收，再删解释性文本。
 
+**质量检查点**：
+- [ ] 硬约束未丢
+- [ ] 验收仍可检查
+- [ ] 目标未变
+
+## 6. Codex Task Prompt 模板
+
+**使用场景**：让 Codex 执行开发、文档或仓库任务。
+
+**可替换变量**：
+- {{working_directory}}
+- {{task_goal}}
+- {{related_files}}
+- {{verification_steps}}
+
+**模板正文**：
 ```text
-你是 Codex，请深度阅读指定 PDF，并把其中的方法转化为可复用产物。
-
-PDF 定位：
-- 用户路径：[original_user_path]
-- 工作区路径：[wsl_or_local_path]
-- 文件名：[pdf_name]
-
-目标：
-不是普通总结；请把 PDF 中的方法、技巧、规则、案例、反例、模板和注意事项转化为 [skill/workflow/checklist/report]。
-
-执行流程：
-1. 扫描当前目录，定位所有 PDF，并说明为什么选择目标 PDF。
-2. 检查是否已有相关产物或 skill，优先扩展，不冲突时再创建。
-3. 第一轮结构阅读：提取目录、章节、主题、重点章节、低优先级章节。
-4. 第二轮技巧提取：提取任务目标、上下文、输入、约束、输出、角色、拆解、示例、反例、迭代和自检方法。
-5. 第三轮规则转化：把理论转为行为准则、工作流、模板、检查表和验收标准。
-6. 第四轮适配：按目标平台或用户场景重组内容，删除无关产品细节。
-7. 创建或更新目标文件。
-8. 做质量压缩：删除重复、空泛和无法执行的内容。
-9. 用至少三个调用场景模拟验证；发现缺口后立即修正。
-
-输出要求：
-- 分析对象和路径
-- 是否存在已有产物
-- 创建或修改的文件
-- 核心规则
-- 模板数量
-- 示例数量
-- 模拟测试结果
-- 不确定或需人工确认的问题
-
-验收标准：
-- 产物可复用、可维护、可长期调用。
-- 内容以规则、流程、模板、检查表和示例为主。
-- 没有大段复制 PDF 原文。
-- 所有不确定内容已标注。
+你是 Codex，请在 {{working_directory}} 完成任务：{{task_goal}}
+先读取 {{related_files}} 和项目配置；再分析方案并按最小范围修改；禁止无关重构、删除用户功能或新增依赖，除非获得许可。完成后执行 {{verification_steps}}，最终报告修改文件、验证结果和剩余风险。
 ```
 
-## 15.7 复杂功能开发 Prompt 模板
+**填写说明**：工作目录必须写明；验证命令不能省略。
 
+**质量检查点**：
+- [ ] 先读后改
+- [ ] 范围最小
+- [ ] 有验证结果
+
+## 7. Codex Plan Mode 模板
+
+**使用场景**：只规划不修改。
+
+**可替换变量**：
+- {{working_directory}}
+- {{task_goal}}
+- {{read_first}}
+- {{risk_focus}}
+
+**模板正文**：
 ```text
-你是 Codex，请开发以下复杂功能。
-
-工作目录：
-[path]
-
-功能目标：
-[feature_goal]
-
-用户交互：
-- 入口：[route/button/command]
-- 用户动作：[click/drag/type/upload/run]
-- 预期反馈：[ui_state/data_change/output]
-- 错误状态：[error_or_empty_state]
-
-数据流：
-- 输入数据：[source]
-- 状态管理：[store/state/hooks/files]
-- 输出数据：[destination]
-- 持久化：[local_storage/api/file/db/none]
-
-UI/视觉要求：
-- 布局：[layout]
-- 组件：[components]
-- 响应式要求：[desktop/mobile]
-- 视觉验收：[screenshot/manual_checks]
-
-文件修改范围：
-- 允许：[files_or_dirs]
-- 禁止：[files_or_dirs]
-
-兼容性：
-- 技术栈：[framework/version]
-- 浏览器/运行环境：[target]
-- 不能破坏的现有行为：[behaviors]
-
-执行步骤：
-1. 读取相关代码、配置和资源。
-2. 分析现有数据流和交互方式。
-3. 设计最小实现方案。
-4. 实现功能和必要状态。
-5. 增加或更新测试。
-6. 运行构建、测试或浏览器验证。
-7. 输出完成报告。
-
-验收标准：
-- 功能按用户交互路径可用。
-- 视觉和响应式要求达成。
-- 现有行为未被破坏。
-- 指定验证通过。
-- 失败或限制已报告。
+你是 Codex，现在处于 plan 模式。工作目录：{{working_directory}}
+目标：{{task_goal}}
+请只读取 {{read_first}}，不要修改文件。输出当前状态、风险点、预计修改文件、分阶段计划、验证方式和待确认问题。未确认前不得执行改动。
 ```
 
-## 15.8 多阶段迭代 Prompt 模板
+**填写说明**：用于高风险或大范围任务；必须写 no-edit 边界。
 
+**质量检查点**：
+- [ ] 禁止修改文件
+- [ ] 列预计文件
+- [ ] 列验证方式
+
+## 8. CLI Agent Prompt 模板
+
+**使用场景**：Codex CLI、Claude Code、Gemini CLI 等命令行 agent。
+
+**可替换变量**：
+- {{cli_tool}}
+- {{working_directory}}
+- {{allowed_commands}}
+- {{forbidden_actions}}
+- {{network_policy}}
+
+**模板正文**：
 ```text
-你是 Codex，请按多阶段方式完成任务。
-
-总目标：
-[overall_goal]
-
-阶段划分：
-
-阶段 1：[name]
-- 目标：[goal]
-- 输入：[inputs]
-- 执行动作：[actions]
-- 输出：[deliverable]
-- 验收：[acceptance]
-- 失败回退：[fallback]
-
-阶段 2：[name]
-- 目标：[goal]
-- 输入：[inputs]
-- 执行动作：[actions]
-- 输出：[deliverable]
-- 验收：[acceptance]
-- 失败回退：[fallback]
-
-阶段 3：[name]
-- 目标：[goal]
-- 输入：[inputs]
-- 执行动作：[actions]
-- 输出：[deliverable]
-- 验收：[acceptance]
-- 失败回退：[fallback]
-
-全局约束：
-- 每个阶段完成后输出阶段结果。
-- 如果阶段验收失败，先修复当前阶段，不进入下一阶段。
-- 如果需要扩大范围，先报告原因和影响。
-- 禁止跳过验证。
-
-最终输出：
-- 阶段完成情况表
-- 创建或修改文件
-- 验证结果
-- 未解决问题
+你是 {{cli_tool}}。工作目录：{{working_directory}}
+允许命令：{{allowed_commands}}
+禁止操作：{{forbidden_actions}}
+联网策略：{{network_policy}}
+按读取、分析、执行、验证、报告顺序工作。命令失败时记录错误并调整方案；最终报告命令、文件和结果。
 ```
 
-## 15.9 Plan 模式任务规划 Prompt 模板
+**填写说明**：权限默认收紧；安装依赖和联网需明确许可。
 
+**质量检查点**：
+- [ ] 权限边界明确
+- [ ] 命令失败有处理
+- [ ] 最终报告含命令
+
+## 9. Multi-Stage Workflow Prompt 模板
+
+**使用场景**：多阶段任务或长流程。
+
+**可替换变量**：
+- {{overall_goal}}
+- {{stages}}
+- {{failure_handling}}
+- {{final_report}}
+
+**模板正文**：
 ```text
-你是 Codex，现在处于 plan 模式。请只分析和规划，不要修改文件。
-
-工作目录：
-[path]
-
-任务目标：
-[goal]
-
-先读取：
-- [file_or_dir_1]
-- [file_or_dir_2]
-- [config_or_log]
-
-分析要求：
-1. 说明当前实现或问题现状。
-2. 列出需要确认的风险点。
-3. 列出预计会修改的文件和原因。
-4. 给出分阶段执行计划。
-5. 给出验证方式，包括命令、测试、构建、截图或人工检查。
-6. 标出阻塞问题；非阻塞信息请作为假设列出。
-
-硬性约束：
-- 禁止修改文件。
-- 禁止运行会改变项目状态的命令。
-- 禁止提出大范围重写方案，除非说明小改不可行的证据。
-- 等待用户确认后再执行修改。
-
-输出格式：
-- 任务理解
-- 已读/需读文件
-- 当前判断
-- 风险点
-- 计划步骤
-- 预计修改文件
-- 验证方式
-- 待确认问题
+总目标：{{overall_goal}}
+阶段：{{stages}}
+每阶段必须写目标、输入、动作、输出、验收和失败处理。若某阶段失败，先修复或报告阻塞，不进入下一阶段。最终输出：{{final_report}}。
 ```
 
-## 15.10 视觉/3D/交互任务 Prompt 模板
+**填写说明**：适合复杂开发、研究、自动化和报告任务。
 
+**质量检查点**：
+- [ ] 阶段有验收
+- [ ] 失败处理明确
+- [ ] 最终报告汇总
+
+## 10. Document Analysis Prompt 模板
+
+**使用场景**：文档、会议记录、项目资料分析。
+
+**可替换变量**：
+- {{document_paths}}
+- {{reading_scope}}
+- {{analysis_focus}}
+- {{citation_style}}
+
+**模板正文**：
 ```text
-你是 Codex，请处理以下视觉、3D 或交互任务。
-
-工作目录：
-[path]
-
-目标视觉效果：
-[describe_target_visual]
-
-当前异常：
-[describe_current_issue_or_none]
-
-对象名称：
-- 3D 对象/组件：[object_names]
-- DOM/组件路径：[component_paths]
-- 资源文件：[asset_paths]
-
-初始视角与环境：
-- 视口：[width x height]
-- 相机/缩放/角度：[camera_or_view]
-- 设备：[desktop/mobile]
-
-交互行为：
-- 触发动作：[drag/click/hover/scroll/keyboard]
-- 预期响应：[state_change/animation/value]
-- 边界条件：[min/max/disabled/loading]
-
-禁止破坏内容：
-- [existing_interaction]
-- [asset_or_scene]
-- [layout_or_route]
-
-视觉分析边界：
-- 是否允许调用视觉分析：[yes/no]
-- 是否允许启动 dev server：[yes/no]
-- 是否允许使用浏览器自动化截图：[yes/no]
-- 如不允许，必须给出用户手动截图验证步骤。
-
-执行步骤：
-1. 读取相关组件、样式、资源和交互逻辑。
-2. 复现或分析当前异常。
-3. 设计最小交互改动。
-4. 实现并保护现有资源结构。
-5. 验证桌面和移动视口；如涉及 3D，检查画面非空、对象可见、交互响应正确。
-6. 输出截图路径、手动验证步骤或无法验证原因。
-
-最终验收标准：
-- 目标对象在指定视角可见。
-- 指定交互可触发，状态变化符合预期。
-- 文本和控件不重叠。
-- 现有资源、路由和交互未被破坏。
-- 验证步骤可复现。
+请分析文档：{{document_paths}}
+阅读范围：{{reading_scope}}
+分析重点：{{analysis_focus}}
+先建立文档索引，再按主题提取事实、推断、不确定内容和行动项。引用方式：{{citation_style}}。
 ```
+
+**填写说明**：不要机械章节摘要；事实要能回溯来源。
+
+**质量检查点**：
+- [ ] 范围明确
+- [ ] 事实/推断分开
+- [ ] 行动项可执行
+
+## 11. Research Synthesis Prompt 模板
+
+**使用场景**：多来源研究和观点综合。
+
+**可替换变量**：
+- {{research_question}}
+- {{sources}}
+- {{citation_requirements}}
+- {{scope}}
+
+**模板正文**：
+```text
+研究问题：{{research_question}}
+来源：{{sources}}
+范围：{{scope}}
+请比较来源观点、证据、方法和限制，区分结论、证据、推测和不确定性。引用要求：{{citation_requirements}}。
+```
+
+**填写说明**：来源不足时说明限制，不编造引用。
+
+**质量检查点**：
+- [ ] 结论有证据
+- [ ] 冲突已呈现
+- [ ] 引用可查
+
+## 12. Data Analysis Prompt 模板
+
+**使用场景**：数据集、指标、趋势或异常分析。
+
+**可替换变量**：
+- {{data_source}}
+- {{analysis_goal}}
+- {{variables}}
+- {{method_constraints}}
+
+**模板正文**：
+```text
+请分析数据：{{data_source}}
+目标：{{analysis_goal}}
+变量：{{variables}}
+方法限制：{{method_constraints}}
+先做数据字典和质量检查，再设计可复现分析，输出结果、限制和下一步。
+```
+
+**填写说明**：清洗规则和口径必须写出。
+
+**质量检查点**：
+- [ ] 数据质量已查
+- [ ] 代码/步骤可复现
+- [ ] 结论有数据支持
+
+## 13. Report Writing Prompt 模板
+
+**使用场景**：项目报告、正式文稿、阶段总结。
+
+**可替换变量**：
+- {{report_goal}}
+- {{audience}}
+- {{materials}}
+- {{tone}}
+- {{length}}
+
+**模板正文**：
+```text
+请基于 {{materials}} 写报告。
+目的：{{report_goal}}
+读者：{{audience}}
+语气：{{tone}}
+长度：{{length}}
+设计章节结构，结论绑定事实材料，输出摘要、正文、风险、建议和需补充材料。
+```
+
+**填写说明**：材料不足时先列缺口，不编造成果。
+
+**质量检查点**：
+- [ ] 读者明确
+- [ ] 事实可追溯
+- [ ] 章节完整
+
+## 14. High-Risk Domain Safe Prompt 模板
+
+**使用场景**：法律、医疗、金融、安全等高风险领域。
+
+**可替换变量**：
+- {{domain}}
+- {{user_question}}
+- {{source_materials}}
+- {{safety_notice}}
+
+**模板正文**：
+```text
+领域：{{domain}}
+问题：{{user_question}}
+材料：{{source_materials}}
+安全声明：{{safety_notice}}
+请提供信息性分析，标注来源、假设和不确定性；不要替代专业意见；必要时建议咨询专业人士。安全领域只给防御性建议，不提供攻击步骤。
+```
+
+**填写说明**：高风险结论必须降确定性并说明依据。
+
+**质量检查点**：
+- [ ] 声明清楚
+- [ ] 不替代专业意见
+- [ ] 不确定性已标注
+
+## 15. Meta Skill Builder Prompt 模板
+
+**使用场景**：把流程或知识做成 skill。
+
+**可替换变量**：
+- {{source_materials}}
+- {{skill_name}}
+- {{use_cases}}
+- {{output_path}}
+
+**模板正文**：
+```text
+请把 {{source_materials}} 提炼为 skill：{{skill_name}}
+适用场景：{{use_cases}}
+输出路径：{{output_path}}
+生成触发条件、不适用场景、规则、流程、模板、检查表、示例和维护说明。禁止复制长段原文。最后用 3 个调用样例测试。
+```
+
+**填写说明**：把知识转为行为规则，而不是普通摘要。
+
+**质量检查点**：
+- [ ] 触发清楚
+- [ ] 模板可用
+- [ ] 有模拟测试
+## 16. DevOps / CI Prompt 模板
+
+**使用场景**：CI/CD pipeline 设计、GitHub Actions/GitLab CI 修复、Docker build、部署和回滚策略。
+
+**可替换变量**：
+- {{repository_path}}
+- {{ci_platform}}
+- {{deployment_target}}
+- {{build_command}}
+- {{test_command}}
+- {{environment_variables}}
+- {{current_error_log}}
+- {{branch_strategy}}
+- {{rollback_requirement}}
+
+**模板正文**：
+```text
+请为 {{ci_platform}} 处理 CI/CD 任务。仓库：{{repository_path}}；部署目标：{{deployment_target}}；构建命令：{{build_command}}；测试命令：{{test_command}}；环境变量：{{environment_variables}}；失败日志：{{current_error_log}}；分支策略：{{branch_strategy}}；回滚要求：{{rollback_requirement}}。
+必须先读取现有 CI 配置、Dockerfile、部署脚本和依赖配置；区分本地失败与 CI/runner 失败；只做最小修改；禁止输出真实 secrets；涉及 production 时先给风险和回滚方案。输出修改文件、验证步骤、重跑 pipeline 方式和剩余风险。
+```
+
+**填写说明**：环境变量只写名称和用途，不填真实值；生产部署默认 plan。
+
+**质量检查点**：
+- [ ] CI 平台、部署目标和命令明确
+- [ ] secrets 不泄露
+- [ ] pipeline 验证和 rollback 明确
+
+## 17. Database Migration Prompt 模板
+
+**使用场景**：schema 修改、ORM migration、数据回填、索引调整、零停机迁移和 rollback。
+
+**可替换变量**：
+- {{database_type}}
+- {{orm_or_migration_tool}}
+- {{current_schema}}
+- {{target_schema}}
+- {{migration_goal}}
+- {{data_volume}}
+- {{downtime_tolerance}}
+- {{backup_status}}
+- {{rollback_plan}}
+- {{affected_tables}}
+- {{affected_services}}
+
+**模板正文**：
+```text
+请设计数据库迁移方案。数据库：{{database_type}}；工具：{{orm_or_migration_tool}}；当前 schema：{{current_schema}}；目标 schema：{{target_schema}}；目标：{{migration_goal}}；数据量：{{data_volume}}；停机容忍：{{downtime_tolerance}}；备份状态：{{backup_status}}；rollback：{{rollback_plan}}；受影响表：{{affected_tables}}；受影响服务：{{affected_services}}。
+必须先读取 schema 和 migration 历史；识别破坏性变更；区分 schema migration 与 data migration；生产环境只 plan 不直接执行；输出分阶段方案、备份、回滚、staging 验证和数据一致性检查。
+```
+
+**填写说明**：备份状态未知时不得生成直接执行指令。
+
+**质量检查点**：
+- [ ] schema/data migration 分开
+- [ ] 破坏性变更和大表锁表风险已识别
+- [ ] 备份、rollback、staging 验证明确
+
+## 18. API Design Prompt 模板
+
+**使用场景**：REST、GraphQL、gRPC、OpenAPI、鉴权、错误码、分页和联调。
+
+**可替换变量**：
+- {{api_goal}}
+- {{api_style}}
+- {{consumer}}
+- {{resource_model}}
+- {{auth_method}}
+- {{request_fields}}
+- {{response_fields}}
+- {{error_cases}}
+- {{versioning_requirement}}
+- {{rate_limit_requirement}}
+- {{openapi_required}}
+
+**模板正文**：
+```text
+请设计 {{api_style}} API。目标：{{api_goal}}；调用方：{{consumer}}；资源模型：{{resource_model}}；鉴权：{{auth_method}}；请求字段：{{request_fields}}；响应字段：{{response_fields}}；错误场景：{{error_cases}}；版本策略：{{versioning_requirement}}；限流：{{rate_limit_requirement}}；OpenAPI：{{openapi_required}}。
+必须定义资源、操作、请求/响应 schema、错误码、统一错误响应、鉴权权限、分页/排序/过滤、幂等性和测试场景。按需输出 OpenAPI、示例请求和示例响应。
+```
+
+**填写说明**：鉴权未知时不得默认公开接口。
+
+**质量检查点**：
+- [ ] 请求/响应和错误格式明确
+- [ ] 鉴权、权限和版本策略明确
+- [ ] 示例和测试场景完整
+
+## 19. Knowledge Base / RAG Prompt 模板
+
+**使用场景**：知识库、RAG、embedding、向量库、检索、rerank、引用和防幻觉。
+
+**可替换变量**：
+- {{knowledge_sources}}
+- {{document_types}}
+- {{target_users}}
+- {{qa_scope}}
+- {{chunking_strategy}}
+- {{embedding_model}}
+- {{vector_database}}
+- {{retrieval_strategy}}
+- {{reranking_strategy}}
+- {{citation_requirement}}
+- {{access_control}}
+- {{evaluation_questions}}
+- {{freshness_requirement}}
+
+**模板正文**：
+```text
+请设计 RAG 知识库。知识源：{{knowledge_sources}}；文档类型：{{document_types}}；用户：{{target_users}}；范围：{{qa_scope}}；chunk：{{chunking_strategy}}；embedding：{{embedding_model}}；向量库：{{vector_database}}；检索：{{retrieval_strategy}}；rerank：{{reranking_strategy}}；引用：{{citation_requirement}}；权限：{{access_control}}；评估问题：{{evaluation_questions}}；时效：{{freshness_requirement}}。
+必须建立文档索引、设计 chunk/metadata、检索/重排/生成流程；回答必须带引用；无依据时拒答或说明未找到依据；包含权限、更新、版本、审计和评估指标。
+```
+
+**填写说明**：知识源不明确时先补知识源，不直接设计实现。
+
+**质量检查点**：
+- [ ] 知识源、范围和权限明确
+- [ ] chunk、metadata、检索和 rerank 明确
+- [ ] 引用、不命中策略和评估指标明确
+
+## 20. Customer Service QA Prompt 模板
+
+**使用场景**：客服对话质检、工单分析、情绪分析、违规话术和坐席培训反馈。
+
+**可替换变量**：
+- {{conversation_transcript}}
+- {{business_context}}
+- {{service_channel}}
+- {{quality_dimensions}}
+- {{scoring_rubric}}
+- {{compliance_rules}}
+- {{customer_sentiment_focus}}
+- {{privacy_requirements}}
+- {{output_audience}}
+
+**模板正文**：
+```text
+请质检客服对话。材料：{{conversation_transcript}}；业务：{{business_context}}；渠道：{{service_channel}}；维度：{{quality_dimensions}}；评分：{{scoring_rubric}}；合规：{{compliance_rules}}；情绪关注：{{customer_sentiment_focus}}；隐私：{{privacy_requirements}}；读者：{{output_audience}}。
+必须先脱敏；每个评分点引用对话证据；区分事实、推断和建议；避免人身评价；输出评分表、证据片段、违规风险、情绪/归因和改进话术。
+```
+
+**填写说明**：评分标准缺失时先生成待确认 rubric。
+
+**质量检查点**：
+- [ ] 评分维度和证据引用明确
+- [ ] 隐私脱敏明确
+- [ ] 改进建议可执行
+
+## 21. Recruiting Evaluation Prompt 模板
+
+**使用场景**：简历筛选、面试评估、岗位匹配、候选人打分和面试题设计。
+
+**可替换变量**：
+- {{job_description}}
+- {{must_have_requirements}}
+- {{nice_to_have_requirements}}
+- {{candidate_resume}}
+- {{interview_notes}}
+- {{evaluation_rubric}}
+- {{seniority_level}}
+- {{location_or_work_authorization_constraints}}
+- {{bias_control_rules}}
+
+**模板正文**：
+```text
+请进行招聘评估。JD：{{job_description}}；必备：{{must_have_requirements}}；加分：{{nice_to_have_requirements}}；简历：{{candidate_resume}}；面试记录：{{interview_notes}}；评分：{{evaluation_rubric}}；职级：{{seniority_level}}；地点/授权：{{location_or_work_authorization_constraints}}；偏见控制：{{bias_control_rules}}。
+必须基于岗位要求和材料证据；区分 must-have 与 nice-to-have；标注信息不足；禁止基于受保护属性推断；输出结构化评分、证据、风险和后续面试问题。AI 输出不得作为唯一招聘决策依据。
+```
+
+**填写说明**：缺 JD 时只做材料摘要，不做匹配结论。
+
+**质量检查点**：
+- [ ] 证据引用明确
+- [ ] 受保护属性偏见被排除
+- [ ] 后续验证问题明确
+
+## 22. Curriculum Design Prompt 模板
+
+**使用场景**：课程大纲、教学计划、训练营、作业、评估和企业内训。
+
+**可替换变量**：
+- {{learner_profile}}
+- {{prerequisites}}
+- {{learning_objectives}}
+- {{course_duration}}
+- {{delivery_format}}
+- {{module_topics}}
+- {{assessment_method}}
+- {{practice_requirements}}
+- {{final_project_requirement}}
+
+**模板正文**：
+```text
+请设计课程。学习者：{{learner_profile}}；先修：{{prerequisites}}；目标：{{learning_objectives}}；周期：{{course_duration}}；形式：{{delivery_format}}；模块：{{module_topics}}；评估：{{assessment_method}}；练习：{{practice_requirements}}；最终项目：{{final_project_requirement}}。
+必须把目标写成可观察能力；按学习者水平设计难度递进；每个模块包含目标、活动、练习、作业和验收；输出课时安排、最终项目、评分 rubric 和反馈机制。
+```
+
+**填写说明**：不要只列主题；每个主题要绑定活动和产出。
+
+**质量检查点**：
+- [ ] 学习目标可观察
+- [ ] 模块有活动、练习和评估
+- [ ] 最终项目和反馈机制明确
+
+## 23. Game Design Prompt 模板
+
+**使用场景**：游戏概念、核心玩法、机制、关卡、数值、GDD 和可测试原型。
+
+**可替换变量**：
+- {{game_genre}}
+- {{target_players}}
+- {{platform}}
+- {{core_loop}}
+- {{main_mechanics}}
+- {{progression_system}}
+- {{level_design_goal}}
+- {{art_style}}
+- {{narrative_scope}}
+- {{prototype_scope}}
+- {{success_metrics}}
+
+**模板正文**：
+```text
+请设计游戏。类型：{{game_genre}}；玩家：{{target_players}}；平台：{{platform}}；核心循环：{{core_loop}}；机制：{{main_mechanics}}；成长：{{progression_system}}；关卡目标：{{level_design_goal}}；美术：{{art_style}}；叙事：{{narrative_scope}}；原型：{{prototype_scope}}；指标：{{success_metrics}}。
+必须先定义核心玩法循环，说明玩家目标、操作、反馈和奖励；区分概念、机制和实现；输出胜利/失败条件、难度曲线、关卡结构、原型范围、GDD 和 playtest 标准。
+```
+
+**填写说明**：若要求 Codex 实现原型，组合 coding-feature-development 分支。
+
+**质量检查点**：
+- [ ] 核心循环明确
+- [ ] 原型范围可测试
+- [ ] playtest 验收标准明确
