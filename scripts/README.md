@@ -25,9 +25,9 @@ Commands:
 python3 scripts/skill_hub_manager.py stats
 python3 scripts/skill_hub_manager.py validate
 python3 scripts/skill_hub_manager.py capabilities
-python3 scripts/skill_hub_manager.py init-spec --output <branch-spec.json>
-python3 scripts/skill_hub_manager.py add-branch --spec <branch-spec.json> --dry-run
-python3 scripts/skill_hub_manager.py add-branch --spec <branch-spec.json>
+python3 scripts/skill_hub_manager.py init-spec --output /tmp/new-branch-spec.json
+python3 scripts/skill_hub_manager.py add-branch --spec /tmp/new-branch-spec.json --dry-run
+python3 scripts/skill_hub_manager.py add-branch --spec /tmp/new-branch-spec.json
 ```
 
 ## What `add-branch` Updates
@@ -49,4 +49,9 @@ python3 scripts/skill_hub_manager.py add-branch --spec <branch-spec.json>
 - Branch files are referenced by `SKILL.md` and `router.md`.
 - Branch templates include placeholders.
 - Branches include checklist items.
+- `prompt-generation-protocol.md`, `branch-composition.md`, `branches/manifest.yaml`, `evals/README.md`, and `evals/schema.md` exist.
+- `branches/manifest.yaml` references existing branch files and eval case files.
+- Every YAML file under `evals/cases/` contains the required prompt-quality eval fields.
 - Known vague phrases are reported as warnings.
+
+`stats` also reports eval case count and whether a branch manifest exists.

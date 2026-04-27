@@ -1,86 +1,136 @@
 # Prompt Engineering Skill Hub
 
-这是 `prompt-engineering` skill 的可分发副本，用于把模糊需求转化为可直接交给 Codex、Codex CLI、Claude Code、Gemini CLI、ChatGPT 等工具执行的高质量 prompt。
+一句话定位：把用户的模糊需求路由到合适场景分支，并生成可交给 Codex、Codex CLI、Claude Code、Gemini CLI、ChatGPT 等工具执行的高质量 prompt。
 
-## 内容概览
+## 适用人群
 
-- `SKILL.md`：总入口，说明用途、触发条件、分支分类和质量标准。
-- `router.md`：路由系统，根据用户需求选择主分支和辅助分支。
-- `common-principles.md`：跨分支通用 prompt 编写原则。
-- `templates.md`：跨场景可复制模板。
-- `checklists.md`：可执行质量检查表。
-- `examples.md`：跨分支完整示例。
-- `branches/`：场景化分支库，共 45 个分支。
-- `scripts/`：扩展管理脚本，用于新增分支、验证结构、统计规模和输出能力说明。
+- 想把口语需求改成强执行 prompt 的用户。
+- 为 coding agent、研究 agent、数据分析 agent 或文档 agent 编写任务说明的人。
+- 维护 Prompt Skill Hub、模板库、路由系统和 eval cases 的团队。
+- 需要在医疗、法律、金融、安全、招聘、隐私等高风险领域保持边界的 AI workflow 设计者。
 
-## 分支分类
+## 典型使用场景
 
-- `general-prompt`：prompt 评审、改写、扩写、压缩、模板化。
-- `software-engineering`：plan mode、功能开发、debug、重构、测试、代码审查、仓库分析、CLI agent、安全建模、DevOps/CI、数据库迁移、API 设计。
-- `documents-research`：文档分析、PDF to skill、研究综合、学术写作、报告写作。
-- `data-analytics`：数据分析、表格分析、可视化仪表盘。
-- `product-design-business`：PRD、UX/UI、商业策略、营销内容。
-- `ai-systems`：知识库 / RAG。
-- `business-operations`：客服质检、招聘评估。
-- `education`：课程设计。
-- `creative-design`：游戏设计。
-- `multimodal`：图片、音视频、3D/交互视觉任务。
-- `domain-specific`：法律、医疗、金融、教育辅导。
-- `communication`：翻译本地化、角色模拟。
-- `automation`：自动化工作流。
-- `meta`：meta skill builder。
+- 修复代码 bug、补测试、生成 Codex CLI 任务 prompt。
+- 分析仓库结构、输出项目理解报告。
+- 编写 PRD，并转成开发 Agent prompt。
+- 设计 RAG 知识库，包含引用、权限、更新和评估。
+- 做数据分析 prompt，包含字段、清洗、指标、图表和结论边界。
+- 将合同、体检报告、金融资料等高风险材料整理为安全的信息性 prompt。
+- 审计和改进 Prompt 系统本身。
 
-## 使用方式
+## 最短使用路径
 
-1. 先读取 `SKILL.md`。
-2. 读取 `router.md`，判断主分支和辅助分支。
-3. 应用 `common-principles.md` 的通用约束。
-4. 使用 `templates.md` 和对应分支模板生成 prompt。
-5. 用 `checklists.md` 和分支检查表自检。
-6. 必要时参考 `examples.md`。
+1. 读 `router.md`，按最终交付物选择唯一主分支。
+2. 必要时用 `branch-composition.md` 选择 1 到 3 个辅助分支。
+3. 用 `templates.md` 和对应 `branches/` 文件生成 prompt。
+4. 用 `checklists.md` 自检。
 
-## 扩展管理脚本
+## 完整使用路径
 
-副本内置 `scripts/skill_hub_manager.py`，用于维护 Skill Hub：
+1. `prompt-generation-protocol.md`：按 Intake、Normalize、Route、Missing Inputs、Risk Check、Construct、Self Check、Finalize 执行。
+2. `router.md`：输出主分支、辅助分支、命中原因、缺失输入、风险等级和构造策略。
+3. `common-principles.md`：统一缺失输入、约束优先级、防幻觉、高风险边界和工具适配。
+4. `templates.md`：选择通用模板、分支模板或多分支组合模板。
+5. `checklists.md`：用通用、路由、分支、高风险和最终交付前检查表验收。
+6. `examples.md`：参考从模糊需求到最终 prompt 的全过程示例。
+7. `evals/`：用 eval case 检查生成 prompt 的质量。
+8. `branches/manifest.yaml`：读取机器可用的重点分支索引和 eval 覆盖。
+
+## 路由示例
+
+用户输入：
+
+```text
+帮我写一个 prompt，让 Codex 修复这个项目 npm run build 报错，并确保不要乱改。
+```
+
+路由结果：
+
+```text
+主分支：software-engineering/bugfix-debugging
+辅助分支：software-engineering/test-generation, software-engineering/cli-agent
+风险等级：medium
+缺失输入：错误日志、复现步骤、工作目录、环境信息、验证命令
+```
+
+最终 prompt：
+
+```text
+你是 Codex，请在 `[待补充: working_directory]` 修复 `npm run build` 报错。错误日志：`[待补充: error_log]`。先读取 `package.json`、构建配置、错误栈指向文件和相关测试；先复现失败或说明无法复现原因，再定位根因。只做最小修复，禁止无关重构、全仓库格式化、新增依赖、删除测试、降低断言或注释掉失败逻辑。修复后运行 `npm run build` 和 `[待补充: test_command]`。最终输出根因、证据、修改文件、关键改动、验证命令与结果、未验证项和剩余风险。
+```
+
+自检结果：
+
+- [x] 主分支由最终交付物决定。
+- [x] 缺失输入已标注。
+- [x] 包含最小修复、禁止事项和验证命令。
+- [x] 输出格式可直接交给 Codex 执行。
+
+## 如何选择主分支
+
+主分支只看用户最终想得到的交付物：
+
+- 修复错误：`branches/software-engineering/bugfix-debugging.md`
+- 理解仓库：`branches/software-engineering/repository-analysis.md`
+- 写新功能：`branches/software-engineering/coding-feature-development.md`
+- 补测试：`branches/software-engineering/test-generation.md`
+- 写 PRD：`branches/product-design-business/product-requirements.md`
+- 做 RAG：`branches/ai-systems/knowledge-base-rag.md`
+- 做数据分析：`branches/data-analytics/data-analysis.md`
+- 写报告：`branches/documents-research/report-writing.md`
+- 医疗/法律/金融：对应 `branches/domain-specific/`
+- 改进 Prompt 系统：`branches/meta/meta-skill-builder.md`
+
+## 如何组合辅助分支
+
+辅助分支只在能提升执行质量时使用：
+
+- CLI 工具：`software-engineering/cli-agent`
+- 验证或测试：`software-engineering/test-generation`
+- 正式报告：`documents-research/report-writing`
+- 来源引用：`documents-research/documentation-analysis` 或 `ai-systems/knowledge-base-rag`
+- 安全边界：`software-engineering/security-threat-modeling` 或对应高风险分支
+
+普通任务 0 到 1 个辅助分支，中等复杂任务 1 到 2 个，高风险或跨域任务最多 3 个。超过 3 个时拆成多阶段 prompt。
+
+## 如何使用 Eval Cases
+
+`evals/cases/` 里的 YAML 用来验证“生成的 prompt 是否高质量”，不是验证模型最终任务结果。
+
+每个 case 包含：
+- `expected_primary_branch`
+- `expected_auxiliary_branches`
+- `required_missing_inputs`
+- `expected_prompt_features`
+- `forbidden_prompt_features`
+- `acceptance_criteria`
+
+使用方式：
 
 ```bash
 python3 scripts/skill_hub_manager.py validate
 python3 scripts/skill_hub_manager.py stats
-python3 scripts/skill_hub_manager.py capabilities
-python3 scripts/skill_hub_manager.py init-spec --output <branch-spec.json>
-python3 scripts/skill_hub_manager.py add-branch --spec <branch-spec.json> --dry-run
-python3 scripts/skill_hub_manager.py add-branch --spec <branch-spec.json>
 ```
 
-脚本能力：
+## 如何扩展新分支
 
-- `validate`：检查根文件、分支 10 节结构、路由引用、模板占位符、检查表和空泛表达。
-- `stats`：统计分支、分类、模板、检查表和示例数量。
-- `capabilities`：输出当前 Skill Hub 能力说明。
-- `init-spec`：生成新分支 JSON spec 示例。
-- `add-branch`：根据 JSON spec 新增分支，并同步更新 `SKILL.md`、`router.md`、`templates.md`、`checklists.md` 和 `examples.md`。
+新增分支时应同步更新：
+- `SKILL.md`
+- `router.md`
+- `templates.md`
+- `checklists.md`
+- `examples.md`
+- `branches/manifest.yaml`
+- `evals/cases/<category>/<branch>/`
 
-## 维护规则
+每个分支必须包含 10 节：Purpose、Trigger Conditions、Required Inputs、Prompt Construction Rules、Hard Constraints、Output Format、Quality Checklist、Common Mistakes、Reusable Template、Example。
 
-- 普通 prompt 生成、评审、改写、扩写、压缩、路由或模板查找时，不调用脚本。
-- 只有当用户明确要求“添加 / 创建 / 注册新分支”时，才允许询问并调用 `add-branch`。
-- 调用 `add-branch` 前，必须确认分支分类、slug、用途、触发条件、必需输入、构造规则、硬约束、输出格式、检查表和示例。
-- 新增分支前优先运行 `--dry-run`；确认无误后再正式写入。
-- 新增分支后必须运行 `validate`、`stats` 和 `capabilities`，并汇报修改文件、统计结果和剩余问题。
+## 高风险领域说明
 
-## 质量标准
-
-最终 prompt 必须具备：明确目标、充分上下文、清晰输入、具体步骤、强约束、输出格式、验收标准、风险控制、不确定性标注，并能直接交给目标 AI 工具执行。
-
-## 当前规模
-
-- 分支：45 个。
-- 分类：14 个。
-- 通用模板：23 个。
-- 通用检查表：28 个。
-- 跨分支示例：28 个。
-- 路由示例：23 个。
-
-## 分发位置
-
-- 将整个 `prompt-engineering` 目录复制到目标 Codex skills 目录或团队约定的分发目录。
+- 医疗：不诊断、不处方、不停药换药，只做症状整理、红旗信号和就医准备。
+- 法律：不替代律师，不给最终法律结论，必须要求司法辖区和文本。
+- 金融：不构成个性化投资建议，不保证收益，不给买卖指令。
+- 安全：只支持防御性安全，不提供攻击链、payload、绕过或持久化。
+- 招聘/人事：不使用受保护属性，必须基于岗位相关证据。
+- 隐私/个人数据：最小化、脱敏、限定用途和保留边界。

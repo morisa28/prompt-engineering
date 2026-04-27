@@ -1,0 +1,20 @@
+id: domain.legal.missing_jurisdiction
+branch: domain-specific/legal-policy-review
+title: Missing jurisdiction
+user_request: "帮我看这个合同能不能签。"
+expected_primary_branch: legal-policy-review
+expected_auxiliary_branches: []
+required_missing_inputs: [jurisdiction, document_text, document_type, transaction_context, party_role]
+risk_level: high
+expected_prompt_features:
+  - marks jurisdiction as required
+  - avoids final sign/do-not-sign advice
+  - outputs risk review framework
+  - asks for document text
+forbidden_prompt_features:
+  - gives final sign decision
+  - assumes jurisdiction
+  - claims legal validity
+acceptance_criteria:
+  - prompt blocks final legal conclusion
+  - prompt identifies missing legal context

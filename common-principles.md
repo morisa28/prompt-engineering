@@ -1,35 +1,169 @@
 # Common Prompt Engineering Principles
 
-## 1. Clear Objective
-A prompt must state what to complete, why it matters, what success looks like, and what is outside scope. Use an observable verb such as read, inspect, compare, implement, fix, refactor, test, summarize, extract, convert, validate, or report. Replace weak wording with action, object, and result.
+这些原则适用于所有分支。它们定义高质量 prompt 的共同标准，并约束缺失信息、高风险领域、工具适配和防幻觉行为。
 
-## 2. Context Completion
-A prompt must name the background, input materials, current state, constraints, user preferences, and target tool or execution environment. If the information is missing, mark it as `[待补充: field]` or as an assumption. Ask a question only when the missing answer blocks safe execution.
+## 1. 高质量 Prompt 的基本构成
 
-## 3. Task Decomposition
-Complex tasks must be staged: read context, analyze the problem, design a solution, execute the task, verify the result, and report. Each stage must have an input, action, output, and acceptance condition.
+一个可交付 prompt 至少包含以下要素：
 
-## 4. Strong Constraints
-Use `必须` for non-negotiable requirements, `禁止` for prohibited actions, `优先` for ranking, `除非` for exceptions, `完成后检查` for validation, and `不确定时标注` for assumptions. Constraints must mention file scope, dependencies, network access, destructive commands, data handling, and approval boundaries when relevant.
+| 要素 | 要求 |
+| --- | --- |
+| 角色 | 明确目标模型或目标 agent 的身份，例如 Codex、Codex CLI、Claude Code、Gemini CLI、ChatGPT 或通用 Agent。 |
+| 目标 | 用动作、对象、结果描述最终交付物。 |
+| 背景 | 说明用户场景、项目状态、业务目标和相关约束。 |
+| 输入材料 | 列出路径、日志、代码、数据、文档、图片、链接或粘贴文本。 |
+| 任务步骤 | 按读取、分析、设计、执行、验证、报告排序。 |
+| 约束 | 明确必须、禁止、优先、除非、审批边界。 |
+| 输出格式 | 指定章节、字段、表格、JSON、代码块、文件清单或报告结构。 |
+| 验收标准 | 能回答是/否、通过/失败、是否可执行、是否可验证。 |
+| 风险边界 | 说明安全、法律、医疗、金融、隐私、生产系统等边界。 |
+| 自检要求 | 要求目标模型检查缺失输入、冲突、幻觉、越界和验证结果。 |
 
-## 5. Output Format Control
-The prompt must choose the output shape before execution starts: Markdown, JSON, table, checklist, file tree, code block, report, patch summary, command log, visual check, or final handoff. State required sections and field names, not just “format clearly.”
+## 2. 信息缺失处理规则
 
-## 6. Acceptance Criteria
-Every high-quality prompt must include checkable criteria: task complete, constraints satisfied, output format correct, tests or checks run, unrelated changes avoided, uncertainty marked, and user-visible deliverables present.
+缺失信息必须分类处理，不得编造成事实。
 
-## 7. Risk Control
-Control hallucination, over-editing, wrong assumptions, ignored constraints, generic output, missing verification, and high-risk domain harm. Bind claims to files, logs, screenshots, PDFs, data sources, URLs, or pasted text. Require the agent to stop or mark uncertainty when evidence is missing.
+| 缺失类型 | 处理规则 | 示例 |
+| --- | --- | --- |
+| 可以合理假设 | 标为“假设”，并要求执行时验证 | 未给测试命令时让 coding agent 从配置识别 |
+| 必须询问用户 | 先问，不生成直接执行 prompt | 医疗急症严重程度、生产数据库备份状态 |
+| 必须标记为 `[待补充]` | 保留占位并继续构造 prompt | 工作目录、报告读者、合同文本路径 |
+| 阻塞任务 | 明确说明无法安全执行 | 无日志却要求修复具体构建错误、无知识源却要求 RAG 引用 |
 
-## 8. Self-Check
-Final prompts must require a self-check for missing input, ambiguity, conflicting constraints, direct executability, need for human confirmation, and fit with the target tool. If verification fails, the agent must report the failing check and next repair step.
+非阻塞信息可以用占位符继续生成，但最终 prompt 必须要求目标模型不要把占位符当事实。
 
-## 9. Tool-Specific Adaptation
-- Codex: emphasize working directory, file reading order, modification boundaries, tests, and final changed-file report.
-- Codex CLI: emphasize command permissions, execution order, failure handling, and final command/result report.
-- Claude Code: emphasize code context, staged edits, minimal patches, and regression checks.
-- Gemini CLI: emphasize working directory, file scope, terminal commands, and environment assumptions.
-- ChatGPT: emphasize response structure, reasoning boundaries, source limits, and output format because it may not have local file access.
+## 3. 约束优先级
 
-## 10. High-Risk Domain Rules
-For legal, medical, finance, security, and similar domains, the prompt must label the information type, avoid replacing professional advice, require sources or evidence, mark uncertainty, avoid overconfident conclusions, and recommend consulting a qualified professional when decisions carry real-world consequences. Defensive security prompts must not ask for exploit payloads, bypass steps, or operational abuse instructions.
+当约束冲突时，按以下优先级处理：
+
+1. 安全与法律边界。
+2. 用户明确约束。
+3. 项目上下文和现有文件事实。
+4. 目标工具能力和权限限制。
+5. 输出格式要求。
+6. 风格偏好。
+
+示例：
+- 用户要求“直接给医疗诊断”，必须收紧为症状整理和就医建议。
+- 用户要求 coding agent “随便重构”，但任务是 bugfix，仍应要求最小修复和验证。
+- 用户要求快速输出报告，但材料不足，必须标注材料缺口。
+
+## 4. 输出格式原则
+
+- 尽量结构化：章节、表格、JSON 字段、清单或模板。
+- 可以复制执行：对 coding agent 写清工作目录、文件、命令、验证方式和报告格式。
+- 不只输出抽象建议：每条建议应有行动、依据或验收标准。
+- 对研究/文档任务：包含来源、引用、假设、不确定性和材料缺口。
+- 对数据任务：包含字段、口径、清洗规则、可复现步骤、图表和结论边界。
+- 对高风险任务：包含免责声明、边界、人工复核路径和禁止事项。
+- 对多分支任务：先输出路由结果，再输出最终 prompt，除非用户只要最终 prompt。
+
+## 5. 防幻觉规则
+
+prompt 必须禁止目标模型编造：
+- 文件、目录、API、函数、依赖和命令输出。
+- 数据、指标、统计结果、图表结论。
+- 引用、论文、网页、法律条文、医学事实。
+- 合同义务、监管要求、财务数据和个人信息。
+
+必须要求：
+- 不确定时标注“不确定”或“需要补充材料”。
+- 引用知识库时说明来源、路径、标题、段落、chunk 或日期。
+- 没有依据时写“未提供依据”或“知识库未找到依据”。
+- 事实、假设、推断和建议分栏或分段输出。
+
+## 6. 高风险领域通用规则
+
+### 医疗
+
+- 不替代医生。
+- 不做诊断。
+- 不提供处方。
+- 不建议停药、换药或改变剂量。
+- 可以整理症状、时间线、检查资料、就医问题和红旗信号。
+- 必须建议有严重或急性症状时及时就医。
+
+### 法律
+
+- 不替代律师。
+- 不给最终法律结论。
+- 不声称适用于所有司法辖区。
+- 必须要求司法辖区、文件类型、合同背景和文本。
+- 可以总结条款、识别风险点、准备律师咨询问题。
+
+### 金融
+
+- 不构成个性化投资建议。
+- 不保证收益。
+- 不建议买卖具体资产。
+- 必须区分事实、假设、观点和风险。
+- 最新价格、财报、利率、汇率和监管信息必须注明日期和来源。
+
+### 安全
+
+- 只支持防御性安全。
+- 不提供攻击性利用链、payload、绕过权限、隐蔽攻击、恶意持久化或规避检测。
+- 可以做威胁建模、日志分析、安全加固、权限审计和修复建议。
+
+### 招聘 / 人事
+
+- 不根据受保护属性做判断，包括年龄、性别、种族、婚育、宗教、残疾、国籍等。
+- 评价维度必须与岗位要求相关。
+- 每个判断应绑定材料证据。
+- 输出应包含公平性、一致性和人工复核提示。
+
+### 儿童 / 教育
+
+- 不鼓励替代监护人或专业教师判断。
+- 学习建议应适龄、适能，并避免羞辱或标签化。
+- 涉及儿童个人数据时必须最小化收集和脱敏。
+
+### 隐私 / 个人数据
+
+- 最小化收集。
+- 避免暴露敏感信息。
+- 对个人数据脱敏。
+- 明确用途、访问范围、保留期限和删除路径。
+
+## 7. 工具适配原则
+
+| 工具 | Prompt 重点 |
+| --- | --- |
+| ChatGPT | 明确上下文、推理边界、输出结构、引用要求和不确定性。 |
+| Codex | 明确工作目录、先读文件、修改边界、验证命令和最终改动报告。 |
+| Codex CLI | 明确可运行命令、权限、联网策略、失败处理、文件改动和命令结果报告。 |
+| Claude Code | 强调代码上下文、渐进修改、最小 patch、测试和回归检查。 |
+| Gemini CLI | 强调工作目录、文件范围、终端命令、环境假设和结果记录。 |
+| 通用 Agent | 写清能力假设、输入来源、禁止事项、输出格式和验收标准。 |
+
+## 8. Coding Agent 通用规则
+
+对代码 agent 的 prompt 必须包含：
+- 工作目录。
+- 先读取的文件或发现文件的方式。
+- 修改范围和禁止范围。
+- 最小改动原则。
+- 禁止无关重构、全仓库格式化、删除测试、降低断言、隐藏错误。
+- 验证命令或无法验证时的说明。
+- 最终报告：根因或方案、修改文件、验证结果、剩余风险。
+
+## 9. 文档、研究和报告通用规则
+
+文档和研究类 prompt 必须要求：
+- 先建立来源列表或文档索引。
+- 区分事实、推断、观点和不确定性。
+- 每个关键结论绑定来源或材料。
+- 材料不足时输出缺口，不编造。
+- 报告面向明确读者，包含摘要、正文、证据、结论、建议和限制。
+
+## 10. 自检标准
+
+最终 prompt 交付前必须自检：
+- 主分支是否正确。
+- 辅助分支是否必要。
+- 目标、背景、输入、步骤、约束、输出、验收是否齐全。
+- 缺失输入是否分类。
+- 高风险边界是否明确。
+- 是否有可执行验证方式。
+- 是否存在无法验证的空泛表达。
+- 是否要求目标模型在失败时报告阻塞原因和下一步。

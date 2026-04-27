@@ -38,6 +38,25 @@ ROOT_FILES = [
     "templates.md",
     "checklists.md",
     "examples.md",
+    "prompt-generation-protocol.md",
+    "branch-composition.md",
+    "branches/manifest.yaml",
+    "evals/README.md",
+    "evals/schema.md",
+]
+
+REQUIRED_EVAL_FIELDS = [
+    "id:",
+    "branch:",
+    "title:",
+    "user_request:",
+    "expected_primary_branch:",
+    "expected_auxiliary_branches:",
+    "required_missing_inputs:",
+    "risk_level:",
+    "expected_prompt_features:",
+    "forbidden_prompt_features:",
+    "acceptance_criteria:",
 ]
 
 FORBIDDEN_VAGUE_PHRASES = [
@@ -148,6 +167,13 @@ def branch_files(root: Path) -> list[Path]:
     return sorted((root / "branches").rglob("*.md"))
 
 
+def eval_case_files(root: Path) -> list[Path]:
+    cases = root / "evals" / "cases"
+    if not cases.is_dir():
+        return []
+    return sorted(cases.rglob("*.yaml"))
+
+
 def count_markdown_sections(path: Path, prefix: str) -> int:
     return sum(1 for line in read_text(path).splitlines() if line.startswith(prefix))
 
@@ -168,6 +194,8 @@ def collect_stats(root: Path) -> dict[str, Any]:
         "checklist_count": count_markdown_sections(root / "checklists.md", "## "),
         "example_count": count_markdown_sections(root / "examples.md", "## Example"),
         "router_example_count": count_markdown_sections(root / "router.md", "### Example"),
+        "eval_case_count": len(eval_case_files(root)),
+        "manifest_exists": (root / "branches" / "manifest.yaml").is_file(),
     }
 
 
@@ -185,6 +213,8 @@ def print_stats(root: Path, as_json: bool) -> None:
     print(f"- Checklists: {stats['checklist_count']}")
     print(f"- Examples: {stats['example_count']}")
     print(f"- Router examples: {stats['router_example_count']}")
+    print(f"- Eval cases: {stats['eval_case_count']}")
+    print(f"- Manifest: {'yes' if stats['manifest_exists'] else 'no'}")
     print("\n## Categories")
     for category, count in stats["categories"].items():
         print(f"- `{category}`: {count}")
@@ -221,6 +251,28 @@ def validate(root: Path) -> ValidationResult:
         if rel not in skill:
             warnings.append(f"{rel} is not referenced in SKILL.md")
 
+    manifest_path = root / "branches" / "manifest.yaml"
+    if manifest_path.exists():
+        manifest = read_text(manifest_path)
+        for rel_path in re.findall(r"path:\s*(branches/[^\s]+\.md)", manifest):
+            if not (root / rel_path).is_file():
+                errors.append(f"Manifest references missing branch: {rel_path}")
+        for rel_path in re.findall(r"-\s*(evals/cases/[^\s]+\.yaml)", manifest):
+            if not (root / rel_path).is_file():
+                errors.append(f"Manifest references missing eval case: {rel_path}")
+    else:
+        errors.append("Missing branches/manifest.yaml")
+
+    evals = eval_case_files(root)
+    if not evals:
+        errors.append("Missing eval case files under evals/cases/")
+    for path in evals:
+        rel = path.relative_to(root).as_posix()
+        text = read_text(path)
+        missing_fields = [field for field in REQUIRED_EVAL_FIELDS if field not in text]
+        if missing_fields:
+            errors.append(f"{rel} missing eval fields: {', '.join(missing_fields)}")
+
     for path in [root / rel for rel in ROOT_FILES if (root / rel).exists()] + branch_files(root):
         text = read_text(path)
         for phrase in FORBIDDEN_VAGUE_PHRASES:
@@ -256,6 +308,8 @@ def capabilities(root: Path) -> None:
     print(f"- Template count: {stats['template_count']}")
     print(f"- Checklist count: {stats['checklist_count']}")
     print(f"- Example count: {stats['example_count']}")
+    print(f"- Eval case count: {stats['eval_case_count']}")
+    print(f"- Branch manifest: {'available' if stats['manifest_exists'] else 'missing'}")
     print("\n## Supported Categories")
     for category, count in stats["categories"].items():
         print(f"- `{category}`: {count} branches")

@@ -20,6 +20,276 @@
 
 为什么这样写：它绑定了该场景的关键输入，加入硬约束、输出格式和验收标准，并把不确定内容从事实中分离。
 
+## Full Process Example 29. 模糊 Bugfix 请求
+
+用户原始需求：
+
+```text
+帮我写个 prompt，让 Codex 修复项目 npm run build 报错，并确保不要乱改。
+```
+
+路由判断：
+- 主分支：`branches/software-engineering/bugfix-debugging.md`
+- 辅助分支：`branches/software-engineering/test-generation.md`, `branches/software-engineering/cli-agent.md`
+- 缺失输入：`[待补充: working_directory]`, `[待补充: error_log]`, `[待补充: environment]`, `[待补充: verification_commands]`
+- 风险等级：Medium
+
+最终生成的高质量 prompt：
+
+```text
+你是 Codex，请在 `[待补充: working_directory]` 修复 `npm run build` 报错。错误日志：`[待补充: error_log]`。先读取 `package.json`、构建配置、错误栈指向文件和相关测试；先复现失败或说明无法复现原因，再定位根因。只做最小修复，禁止无关重构、全仓库格式化、新增依赖、删除测试、降低断言或注释掉失败逻辑。修复后运行 `npm run build` 和 `[待补充: test_command]`。最终输出根因、证据、修改文件、关键改动、验证命令与结果、未验证项和剩余风险。
+```
+
+自检结果：
+- [x] 主分支由最终交付物“修复构建失败”决定。
+- [x] 缺失日志和路径已标注。
+- [x] 包含最小修复、禁止事项和验证。
+
+为什么这样设计：bugfix prompt 的关键是防止 agent 猜根因或扩大改动，所以把日志、复现、最小修复和验证放在核心位置。
+
+## Full Process Example 30. 复杂仓库分析请求
+
+用户原始需求：
+
+```text
+分析这个 repo，告诉我架构、风险和下一步建议，不要改代码。
+```
+
+路由判断：
+- 主分支：`branches/software-engineering/repository-analysis.md`
+- 辅助分支：`branches/documents-research/report-writing.md`
+- 缺失输入：`[待补充: working_directory]`, `[待补充: focus_areas]`, `[待补充: output_depth]`
+- 风险等级：Medium
+
+最终生成的高质量 prompt：
+
+```text
+你是 Codex，请只读分析 `[待补充: working_directory]`，不要修改任何文件。先读取 README、依赖配置、构建/测试配置、入口文件和顶层目录；建立简化文件树，识别技术栈、运行命令、测试命令、核心模块、数据流和外部依赖。所有技术栈、入口和命令判断必须引用文件证据。输出项目概览、读取范围、目录树、技术栈证据、核心模块表、数据流、风险点、改进建议和未读取区域。禁止运行破坏性命令、输出 secrets 或把未读取路径写成确定结论。
+```
+
+自检结果：
+- [x] 明确只读。
+- [x] 要求文件证据。
+- [x] 把建议作为报告输出而非执行。
+
+为什么这样设计：仓库分析的风险是 agent 顺手改代码或凭目录名猜结论，因此要求只读、证据和未读取区域。
+
+## Full Process Example 31. RAG 系统搭建请求
+
+用户原始需求：
+
+```text
+帮我设计一个公司内部文档 RAG，回答要有引用，而且不同部门权限不同。
+```
+
+路由判断：
+- 主分支：`branches/ai-systems/knowledge-base-rag.md`
+- 辅助分支：`branches/software-engineering/security-threat-modeling.md`, `branches/documents-research/documentation-analysis.md`
+- 缺失输入：知识源、用户角色、权限规则、更新频率、评估问题集
+- 风险等级：High
+
+最终生成的高质量 prompt：
+
+```text
+请设计公司内部文档 RAG 知识库 prompt。知识源：`[待补充: knowledge_sources]`；用户角色：`[待补充: target_users]`；问答范围和非范围：`[待补充: qa_scope]`；权限规则：`[待补充: access_control]`。必须建立文档索引字段：来源、标题、路径、版本、更新时间、部门权限、metadata、chunk id。设计 chunking、embedding、向量库、metadata filter、top-k 检索、rerank、上下文组装和生成流程。回答必须带文档标题、路径和段落/chunk 引用；检索不到依据时拒答或澄清。权限过滤必须发生在检索和生成前后，并记录审计日志。输出更新策略、失效文档处理、评估问题集、命中率、引用准确率、拒答准确率和权限误放率。
+```
+
+自检结果：
+- [x] 包含引用、权限、更新和评估。
+- [x] 检索不到依据时不编造。
+- [x] 权限作为高风险边界处理。
+
+为什么这样设计：RAG prompt 质量取决于知识源、索引、检索、引用、权限和评估，不能只写“做知识库”。
+
+## Full Process Example 32. PRD 转开发 Agent Prompt
+
+用户原始需求：
+
+```text
+帮我写一个 PRD，然后生成给 Codex 实现的 prompt。
+```
+
+路由判断：
+- 主分支：`branches/product-design-business/product-requirements.md`
+- 辅助分支：`branches/software-engineering/coding-feature-development.md`, `branches/software-engineering/test-generation.md`
+- 缺失输入：产品目标、目标用户、核心场景、MVP、非目标、成功指标、工作目录
+- 风险等级：Medium
+
+最终生成的高质量 prompt：
+
+```text
+请为 `[待补充: product_goal]` 生成 PRD，并附可交给 Codex 的实现 prompt。PRD 必须包含目标用户、核心场景、问题定义、MVP 范围、非目标、用户故事、边界条件、验收标准和成功指标。每个用户故事使用 Given/When/Then。开发 Agent prompt 必须包含：工作目录 `[待补充: working_directory]`、先读文件、允许修改范围、禁止无关重构、测试/构建验证、最终改动报告。未知业务数据或用户研究不得编造成事实，标注 `[待补充]`。
+```
+
+自检结果：
+- [x] PRD 和开发 prompt 分开。
+- [x] MVP、非目标和验收可测试。
+- [x] Codex 执行边界清楚。
+
+为什么这样设计：产品需求和代码执行是两个层级，混在一起会导致 scope creep 和验收不清。
+
+## Full Process Example 33. 医疗症状整理请求
+
+用户原始需求：
+
+```text
+我头痛三天，帮我写 prompt 整理给医生看，不要让 AI 诊断。
+```
+
+路由判断：
+- 主分支：`branches/domain-specific/medical-health-info.md`
+- 辅助分支：`branches/documents-research/report-writing.md`
+- 缺失输入：严重程度、伴随症状、既往史、用药、检查资料
+- 风险等级：High
+
+最终生成的高质量 prompt：
+
+```text
+请把以下健康信息整理成就医准备材料。你不能替代医生，不能诊断，不能处方，不能建议停药、换药或改变剂量。症状：头痛三天；严重程度：`[待补充]`；伴随症状：`[待补充]`；既往史/用药：`[待补充]`；检查资料：`[待补充]`。先列出需要立即就医的红旗信号，如突发剧烈头痛、意识改变、发热伴颈项强直、单侧无力、视物异常、外伤后头痛等；再输出症状时间线、就医准备清单、建议询问医生的问题和待补充信息。
+```
+
+自检结果：
+- [x] 不诊断、不处方、不替代医生。
+- [x] 包含红旗信号。
+- [x] 转成就医准备材料。
+
+为什么这样设计：医疗场景必须把“判断疾病”收紧为安全的信息整理和专业就医准备。
+
+## Full Process Example 34. 金融报告分析请求
+
+用户原始需求：
+
+```text
+帮我写 prompt 分析某只股票值不值得买。
+```
+
+路由判断：
+- 主分支：`branches/domain-specific/finance-investment-analysis.md`
+- 辅助分支：`branches/data-analytics/data-analysis.md`, `branches/documents-research/report-writing.md`
+- 缺失输入：标的、数据来源、当前日期、时间范围、风险偏好
+- 风险等级：High
+
+最终生成的高质量 prompt：
+
+```text
+请对 `[待补充: ticker]` 做信息性投资研究。这不是个性化投资建议，不能保证收益，也不能给确定买入、卖出或持有指令。请使用最新可用数据并标注来源和日期；区分事实、假设、观点和风险；分析业务、财务指标、估值、行业、催化因素、费用、流动性、监管和下行风险；输出乐观、中性、悲观情景。缺少当前价格、财报或新闻来源时列为待核验数据。最后给出适合咨询持牌专业人士的问题。
+```
+
+自检结果：
+- [x] 没有买卖指令。
+- [x] 要求数据来源和日期。
+- [x] 区分事实、假设、观点和风险。
+
+为什么这样设计：金融 prompt 不能替用户做个性化交易决策，只能提供有日期和来源的信息分析框架。
+
+## Full Process Example 35. 法律合同摘要请求
+
+用户原始需求：
+
+```text
+总结这份合同有哪些坑，告诉我能不能签。
+```
+
+路由判断：
+- 主分支：`branches/domain-specific/legal-policy-review.md`
+- 辅助分支：`branches/documents-research/documentation-analysis.md`, `branches/documents-research/report-writing.md`
+- 缺失输入：司法辖区、合同文本、交易背景、用户角色
+- 风险等级：High
+
+最终生成的高质量 prompt：
+
+```text
+请审阅 `[待补充: contract_text]`，文件类型：`[待补充: document_type]`，司法辖区：`[待补充: jurisdiction]`，用户角色：`[待补充: party_role]`。这不是法律意见，不能替代律师，不能给最终能否签署的法律结论。只基于合同文本提取付款、交付、验收、保密、知识产权、数据处理、违约、终止、责任限制和争议解决条款；按 High/Medium/Low 标注风险、条款依据、可能影响和需律师确认事项。输出义务/期限表、风险清单、谈判点和建议咨询律师的问题。
+```
+
+自检结果：
+- [x] 非法律建议边界明确。
+- [x] 要求司法辖区和合同文本。
+- [x] 把“能不能签”改成风险和律师问题。
+
+为什么这样设计：法律 prompt 不能替代律师做最终结论，但可以帮助用户理解条款和准备咨询。
+
+## Full Process Example 36. 数据分析报告请求
+
+用户原始需求：
+
+```text
+分析用户行为数据，找出为什么转化下降，并做可视化报告。
+```
+
+路由判断：
+- 主分支：`branches/data-analytics/data-analysis.md`
+- 辅助分支：`branches/data-analytics/visualization-dashboard.md`, `branches/documents-research/report-writing.md`
+- 缺失输入：数据源、字段含义、转化定义、时间范围、读者
+- 风险等级：Medium
+
+最终生成的高质量 prompt：
+
+```text
+请分析 `[待补充: data_source]` 的用户行为数据，目标是找出转化下降的相关因素。先读取 schema、样例行、字段类型、时间范围和样本量；建立数据字典；检查缺失、重复、异常、时间戳错误和用户 ID 一致性；定义转化率的分子、分母、时间窗口和分组维度。用可复现代码按渠道、版本、地域和首日行为分组分析。输出数据质量报告、指标表、关键图表、结论、限制和下一步验证。禁止把相关性写成因果；字段含义未知时标注 `[待补充]`。
+```
+
+自检结果：
+- [x] 数据质量、指标口径和清洗规则明确。
+- [x] 有图表和报告输出。
+- [x] 防止因果过度结论。
+
+为什么这样设计：数据 prompt 必须先保证口径和质量，再谈结论；否则图表报告会放大错误。
+
+## Full Process Example 37. Prompt 系统自我改进请求
+
+用户原始需求：
+
+```text
+审计我的 prompt skill hub，补路由、模板、eval 和 manifest。
+```
+
+路由判断：
+- 主分支：`branches/meta/meta-skill-builder.md`
+- 辅助分支：`branches/general-prompt/prompt-review.md`, `branches/general-prompt/prompt-template-builder.md`
+- 缺失输入：项目路径、允许改动、重点分支、同步要求
+- 风险等级：Medium
+
+最终生成的高质量 prompt：
+
+```text
+你是 Prompt Engineering 架构师，请审计并改进 `[待补充: project_path]`。先只读审计入口、路由、通用原则、模板、检查表、示例、分支和维护脚本；输出结构、强项、缺口和修改计划。随后增强路由为按最终交付物选择主分支，补辅助分支组合、冲突处理和标准路由输出；深化重点分支；新增 eval cases 和轻量 manifest；更新入口文档引用。保留有效内容，不做无关工程化，不弱化高风险边界。完成后运行可用验证并报告修改文件、自检结果和后续建议。
+```
+
+自检结果：
+- [x] 先审计再修改。
+- [x] 覆盖路由、模板、eval、manifest。
+- [x] 保留项目定位。
+
+为什么这样设计：Prompt 系统改进要落到路由、分支、模板、检查表、eval 和 manifest，而不是泛泛建议。
+
+## Full Process Example 38. 多分支组合请求
+
+用户原始需求：
+
+```text
+帮我写 prompt，让 Codex 修复 GitHub Actions 构建失败，补测试，并输出给负责人看的报告。
+```
+
+路由判断：
+- 主分支：`branches/software-engineering/devops-ci.md`
+- 辅助分支：`branches/software-engineering/bugfix-debugging.md`, `branches/software-engineering/test-generation.md`, `branches/documents-research/report-writing.md`
+- 缺失输入：workflow 文件、失败日志、runner 环境、构建命令、测试命令
+- 风险等级：Medium
+
+最终生成的高质量 prompt：
+
+```text
+你是 Codex，请修复 `[待补充: repository_path]` 的 GitHub Actions 构建失败。先读取 workflow 文件、依赖配置、构建脚本、测试配置和失败日志；区分本地失败与 runner 环境失败；定位根因后做最小修改。禁止输出真实 secrets、删除测试、降低断言、无关重构或全仓库格式化。修复后运行本地可复现的构建/测试命令，并说明如何重跑 workflow。最终输出给负责人的报告：根因、修改文件、关键改动、验证命令与结果、CI 重跑方式、剩余风险和需确认事项。
+```
+
+自检结果：
+- [x] 主分支是 CI 失败修复，bugfix/test/report 是辅助。
+- [x] 包含 secrets 和测试边界。
+- [x] 输出可给负责人阅读的报告。
+
+为什么这样设计：多分支任务必须让主分支定义任务完成标准，辅助分支只补验证、报告和安全边界。
+
 ## Example 2. Prompt Rewrite
 
 - 用户原始需求：把这句话改成 Codex 可以直接执行的 prompt：我的项目 npm run dev 报错了，帮我修。

@@ -1,250 +1,241 @@
 # Prompt Engineering Router
 
+本路由器把用户原始需求转换为一个主分支、少量辅助分支和可执行的 prompt 构造策略。主分支由“最终交付物”决定，辅助分支由工具环境、风险领域、输出形式、验证要求和上下文复杂度决定。
+
 ## 1. Routing Goal
-The router converts a raw user request into one primary branch and optional auxiliary branches. The primary branch solves the core scenario; auxiliary branches add execution mode, target-tool adaptation, domain safety, data/report format, or reusable-template behavior.
 
-## 2. Routing Process
+路由输出必须能回答：
+- 用户最终想得到什么交付物。
+- 哪个分支定义任务完成标准。
+- 哪些辅助分支会实质提升执行、验证、安全或输出质量。
+- 哪些输入缺失会阻塞或需要标注。
+- 是否可以直接生成 prompt。
+
+## 2. Multi-Layer Routing Process
+
 1. 判断用户是否在请求 prompt 相关任务：生成 prompt、优化 prompt、扩写 prompt、压缩 prompt、审查 prompt、创建模板、创建 skill、给 AI 工具写任务说明。
-2. 判断目标任务领域：通用 prompt、软件工程、文档研究、数据分析、产品设计与商业、AI systems、业务运营、教育课程、创意/游戏设计、多模态、专业领域、沟通与语言、自动化、元技能构建。
-3. 判断执行模式：review only、rewrite、expansion、compression、template generation、plan only、direct execution、multi-stage workflow、research synthesis、high-risk domain safe mode。
-4. 选择主分支：主分支负责用户任务的核心场景。
-5. 选择辅助分支：辅助分支只补充执行模式、工具环境、领域安全要求或输出格式。
-6. 输出路由结果：主分支、辅助分支、使用原因、需要收集的关键输入、最终 prompt 生成策略。
+2. 识别最终交付物：代码修复、功能实现、测试、仓库报告、PRD、RAG 方案、数据分析、正式报告、专业领域信息整理、Prompt 系统改进等。
+3. 选择唯一主分支：只按最终交付物决定，不按关键词抢占。
+4. 选择辅助分支：只补充工具适配、验证、报告、引用、权限、安全边界或多模态输入处理。
+5. 处理冲突和缺失输入：按安全边界、用户约束、项目上下文、工具能力、输出格式的优先级排序。
+6. 输出标准化路由结果和 prompt 构造策略。
 
-## 3. Branch Selection Rules
-- `branches/general-prompt/prompt-review.md`：用户说“看看这个 prompt 哪里不好”; 用户要求评分、诊断、找歧义点; 用户已有 prompt 但不确定为什么结果不稳定。
-- `branches/general-prompt/prompt-rewrite.md`：用户说“改成 Codex/Claude/Gemini 能执行的 prompt”; 用户要求把口语化需求变成正式 prompt; 用户给出模糊需求但希望交给 AI 处理。
-- `branches/general-prompt/prompt-expansion.md`：用户说“写详细一点”; 用户提供短 prompt 并要求增强执行力; 任务复杂但原 prompt 只有目标，没有上下文和验收。
-- `branches/general-prompt/prompt-compression.md`：用户说 prompt 太长; 用户要求保留核心约束但减少 token; 用户需要短版/中版/极简版。
-- `branches/general-prompt/prompt-template-builder.md`：用户要求做 prompt 模板; 用户要把某类任务固化; 用户想复用一套 AI 工作流。
-- `branches/software-engineering/plan-mode.md`：用户要求先 plan; 用户说不要直接改代码; 任务涉及大范围修改、迁移或架构决策。
-- `branches/software-engineering/coding-feature-development.md`：用户要求新增功能; 用户要求改前端页面或组件; 用户要求新增接口、交互、状态逻辑。
-- `branches/software-engineering/bugfix-debugging.md`：用户提供报错日志; npm run dev/build/test 失败; 页面白屏或功能异常; CLI 命令报错。
-- `branches/software-engineering/refactor-architecture.md`：用户要求重构; 用户要求模块拆分或降低耦合; 用户要求提升可维护性但不改变功能。
-- `branches/software-engineering/test-generation.md`：用户要求写测试; 用户要求提升覆盖率; 修复后需要回归测试; 需要 E2E 或集成测试。
-- `branches/software-engineering/code-review.md`：用户要求 review 代码; 用户要求找 bug、性能问题或安全问题; 用户给 PR/diff 要审查。
-- `branches/software-engineering/repository-analysis.md`：用户要求分析整个 repo; 用户想理解项目结构; 用户要找入口文件、技术栈、核心模块。
-- `branches/software-engineering/cli-agent.md`：用户目标是 Codex CLI、Gemini CLI、Claude Code; 用户要求写命令行智能体任务说明; 任务需要明确可执行命令和禁止操作。
-- `branches/software-engineering/security-threat-modeling.md`：用户要求安全审查或威胁建模; 用户关注权限、数据泄露、认证授权; 用户要求应用安全检查。
-- `branches/software-engineering/devops-ci.md`：用户提到 CI/CD、GitHub Actions、GitLab CI、Docker build、pipeline、部署、发布、环境变量、secrets、runner、build failed、deploy failed。
-- `branches/software-engineering/database-migration.md`：用户提到 database migration、schema、migration、Prisma、Alembic、Django migration、TypeORM、字段变更、索引、回滚、数据回填。
-- `branches/software-engineering/api-design.md`：用户提到 REST API、GraphQL、OpenAPI、接口设计、请求响应、鉴权、错误码、分页、版本控制、联调。
-- `branches/ai-systems/knowledge-base-rag.md`：用户提到 RAG、知识库、向量数据库、embedding、检索、rerank、内部文档助手、引用来源、防幻觉。
-- `branches/business-operations/customer-service-qa.md`：用户提到客服质检、工单分析、通话转写、客户情绪、服务评分、违规话术、坐席培训。
-- `branches/business-operations/recruiting-evaluation.md`：用户提到简历筛选、候选人评估、面试记录、岗位匹配、面试题、招聘打分。
-- `branches/education/curriculum-design.md`：用户提到课程大纲、教学计划、学习路径、训练营、作业设计、评估标准、教学活动。
-- `branches/creative-design/game-design.md`：用户提到游戏设计、核心玩法、关卡、机制、角色、数值、GDD、玩法循环、原型。
-- `branches/documents-research/documentation-analysis.md`：用户要求总结文档; 用户要求整理会议记录或项目资料; 用户要求多文档归纳。
-- `branches/documents-research/pdf-to-skill.md`：用户要求 PDF 转 skill; 用户要求从书籍/论文提炼方法并固化; 用户说不要普通摘要而要可复用工作流。
-- `branches/documents-research/research-synthesis.md`：用户要求综合多来源研究; 用户要求论文比较或研究报告; 用户要求观点对比。
-- `branches/documents-research/academic-writing.md`：用户要求写论文或文献综述; 用户要求研究计划、学术报告; 用户有课程作业写作要求。
-- `branches/documents-research/report-writing.md`：用户要求写项目报告或正式文稿; 用户要求实习/课程/阶段总结; 用户要求技术文档。
-- `branches/data-analytics/data-analysis.md`：用户要求分析数据集; 用户要求趋势/异常/统计分析; 用户要求业务指标分析。
-- `branches/data-analytics/spreadsheet-analysis.md`：用户要求分析 Excel/CSV/表格; 用户要求生成销售/财务/成绩报告; 用户要求透视分析。
-- `branches/data-analytics/visualization-dashboard.md`：用户要求做图表或仪表盘; 用户要求 BI 报告; 用户要求指标展示。
-- `branches/product-design-business/product-requirements.md`：用户要求写 PRD/MVP; 用户要求产品需求或功能规格; 用户要求用户故事。
-- `branches/product-design-business/ux-ui-design.md`：用户要求 UI/UX 设计; 用户要求优化交互流程; 用户要求组件规范或设计稿说明。
-- `branches/product-design-business/business-strategy.md`：用户要求商业策略或商业计划; 用户要求市场/竞品/增长分析; 用户要求变现路径。
-- `branches/product-design-business/marketing-content.md`：用户要求营销文案/SEO/短视频脚本; 用户要求小红书或邮件营销; 用户要求 A/B 测试文案。
-- `branches/multimodal/visual-image-analysis.md`：用户要求分析图片/截图/设计稿; 用户要求定位页面视觉问题; 用户要求看图解题。
-- `branches/multimodal/video-audio-analysis.md`：用户要求视频/音频分析; 用户要求会议录音整理; 用户要求课程视频时间轴笔记。
-- `branches/multimodal/visual-3d-interaction.md`：用户要求 3D/Spline/Blender 交互; 用户要求旋钮拖拽、模型对齐、动画调整; 用户要求视觉验证节点。
-- `branches/domain-specific/legal-policy-review.md`：用户要求分析合同风险; 用户要求政策/合规/隐私条款审查; 用户要求法律文件摘要。
-- `branches/domain-specific/medical-health-info.md`：用户要求解释症状或体检报告; 用户要求准备看医生; 用户要求医学资料总结。
-- `branches/domain-specific/finance-investment-analysis.md`：用户要求金融/投资/财务分析; 用户要求股票基金加密资产研究; 用户要求预算或财务规划。
-- `branches/domain-specific/education-tutoring.md`：用户要求学习辅导或讲题; 用户要求复习计划; 用户要求知识点拆解。
-- `branches/communication/translation-localization.md`：用户要求翻译/本地化; 用户要求润色或语气改写; 用户要求双语对照。
-- `branches/communication/roleplay-simulation.md`：用户要求面试/谈判/客服模拟; 用户要求销售话术演练; 用户要求英语口语练习。
-- `branches/automation/automation-workflow.md`：用户要求自动化流程/脚本; 用户要求 n8n/Zapier/Make 工作流; 用户要求定时数据同步或报告生成。
-- `branches/meta/meta-skill-builder.md`：用户要求把流程做成 skill; 用户要求把书籍/文档/经验提炼为 skill; 用户要求创建新的 AI 工作流。
+## 3. Primary Branch Selection
 
-## 3.1 New Branch Auxiliary Routing Rules
-- DevOps / CI：主分支 `branches/software-engineering/devops-ci.md`；常见辅助分支 `branches/software-engineering/bugfix-debugging.md`、`branches/software-engineering/cli-agent.md`、`branches/software-engineering/security-threat-modeling.md`。
-- 数据库迁移：主分支 `branches/software-engineering/database-migration.md`；常见辅助分支 `branches/software-engineering/plan-mode.md`、`branches/software-engineering/bugfix-debugging.md`、`branches/software-engineering/security-threat-modeling.md`。
-- API 设计：主分支 `branches/software-engineering/api-design.md`；常见辅助分支 `branches/product-design-business/product-requirements.md`、`branches/software-engineering/coding-feature-development.md`、`branches/software-engineering/test-generation.md`。
-- 知识库 / RAG：主分支 `branches/ai-systems/knowledge-base-rag.md`；常见辅助分支 `branches/documents-research/documentation-analysis.md`、`branches/documents-research/research-synthesis.md`、`branches/software-engineering/api-design.md`、`branches/software-engineering/security-threat-modeling.md`。
-- 客服质检：主分支 `branches/business-operations/customer-service-qa.md`；常见辅助分支 `branches/documents-research/documentation-analysis.md`、`branches/data-analytics/data-analysis.md`、涉及合规时使用 `branches/domain-specific/legal-policy-review.md`。
-- 招聘评估：主分支 `branches/business-operations/recruiting-evaluation.md`；常见辅助分支 `branches/communication/roleplay-simulation.md`、`branches/documents-research/documentation-analysis.md`、涉及合规或歧视风险时使用 `branches/domain-specific/legal-policy-review.md`。
-- 课程设计：主分支 `branches/education/curriculum-design.md`；常见辅助分支 `branches/domain-specific/education-tutoring.md`、`branches/documents-research/report-writing.md`、`branches/general-prompt/prompt-template-builder.md`。
-- 游戏设计：主分支 `branches/creative-design/game-design.md`；常见辅助分支 `branches/product-design-business/ux-ui-design.md`、需要实现原型时使用 `branches/software-engineering/coding-feature-development.md`、需要分析视觉素材时使用 `branches/multimodal/visual-image-analysis.md`、需要 GDD 文档时使用 `branches/documents-research/report-writing.md`。
+| 用户最终想得到的交付物 | 主分支 |
+| --- | --- |
+| 审查已有 prompt、评分、找缺口 | `branches/general-prompt/prompt-review.md` |
+| 把口语需求改成可执行 prompt | `branches/general-prompt/prompt-rewrite.md` |
+| 扩展短 prompt | `branches/general-prompt/prompt-expansion.md` |
+| 压缩长 prompt | `branches/general-prompt/prompt-compression.md` |
+| 生成可复用 prompt 模板 | `branches/general-prompt/prompt-template-builder.md` |
+| 只规划不改代码 | `branches/software-engineering/plan-mode.md` |
+| 新功能、页面、接口、状态逻辑 | `branches/software-engineering/coding-feature-development.md` |
+| 修复报错、构建失败、白屏、CLI 错误 | `branches/software-engineering/bugfix-debugging.md` |
+| 重构、模块拆分、降低耦合 | `branches/software-engineering/refactor-architecture.md` |
+| 单元、集成、E2E、回归测试 | `branches/software-engineering/test-generation.md` |
+| 代码审查、PR/diff review | `branches/software-engineering/code-review.md` |
+| 仓库理解和只读分析报告 | `branches/software-engineering/repository-analysis.md` |
+| 命令行 agent 任务说明 | `branches/software-engineering/cli-agent.md` |
+| 防御性安全审查和威胁建模 | `branches/software-engineering/security-threat-modeling.md` |
+| CI/CD、Docker、部署、runner、secrets | `branches/software-engineering/devops-ci.md` |
+| schema migration、数据回填、rollback | `branches/software-engineering/database-migration.md` |
+| REST、GraphQL、OpenAPI、鉴权、错误码 | `branches/software-engineering/api-design.md` |
+| 文档、会议记录、项目资料分析 | `branches/documents-research/documentation-analysis.md` |
+| PDF/书籍/论文提炼成 skill | `branches/documents-research/pdf-to-skill.md` |
+| 多来源研究、论文比较、观点综合 | `branches/documents-research/research-synthesis.md` |
+| 论文、文献综述、学术报告 | `branches/documents-research/academic-writing.md` |
+| 项目报告、阶段总结、技术文档 | `branches/documents-research/report-writing.md` |
+| 数据集、统计、趋势、异常、指标分析 | `branches/data-analytics/data-analysis.md` |
+| Excel、CSV、表格分析 | `branches/data-analytics/spreadsheet-analysis.md` |
+| 图表、仪表盘、BI 展示 | `branches/data-analytics/visualization-dashboard.md` |
+| PRD、MVP、产品需求、用户故事 | `branches/product-design-business/product-requirements.md` |
+| UX/UI、交互流程、组件规范 | `branches/product-design-business/ux-ui-design.md` |
+| 商业计划、市场、竞品、增长策略 | `branches/product-design-business/business-strategy.md` |
+| 营销文案、SEO、短视频脚本 | `branches/product-design-business/marketing-content.md` |
+| 知识库、RAG、embedding、检索、引用 | `branches/ai-systems/knowledge-base-rag.md` |
+| 客服质检、工单分析、坐席反馈 | `branches/business-operations/customer-service-qa.md` |
+| 简历筛选、面试评估、招聘打分 | `branches/business-operations/recruiting-evaluation.md` |
+| 课程大纲、学习路径、训练营设计 | `branches/education/curriculum-design.md` |
+| 游戏概念、玩法、GDD、原型范围 | `branches/creative-design/game-design.md` |
+| 图片、截图、设计稿视觉分析 | `branches/multimodal/visual-image-analysis.md` |
+| 视频、音频、会议录音、时间轴笔记 | `branches/multimodal/video-audio-analysis.md` |
+| Spline、Blender、3D 网页、交互视觉验证 | `branches/multimodal/visual-3d-interaction.md` |
+| 合同、政策、合规、隐私条款信息分析 | `branches/domain-specific/legal-policy-review.md` |
+| 症状、体检报告、就医准备、医学资料整理 | `branches/domain-specific/medical-health-info.md` |
+| 金融、投资、财务分析、预算规划 | `branches/domain-specific/finance-investment-analysis.md` |
+| 学习辅导、讲题、复习计划 | `branches/domain-specific/education-tutoring.md` |
+| 翻译、本地化、润色、双语对照 | `branches/communication/translation-localization.md` |
+| 面试、谈判、客服、销售话术模拟 | `branches/communication/roleplay-simulation.md` |
+| Zapier、Make、n8n、自动化脚本和定时任务 | `branches/automation/automation-workflow.md` |
+| 创建或改进 AI skill / Prompt 系统 | `branches/meta/meta-skill-builder.md` |
 
-## 4. Multi-Branch Combination Rules
-- 用户要求“先 plan，再修 bug”：主分支 `branches/software-engineering/bugfix-debugging.md`；辅助分支 `branches/software-engineering/plan-mode.md`、`branches/software-engineering/cli-agent.md`。
-- 用户要求“分析 repo 并给 Codex CLI 写 prompt”：主分支 `branches/software-engineering/repository-analysis.md`；辅助分支 `branches/software-engineering/cli-agent.md`、`branches/general-prompt/prompt-rewrite.md`。
-- 用户要求“读取 PDF 并提炼为 skill”：主分支 `branches/documents-research/pdf-to-skill.md`；辅助分支 `branches/meta/meta-skill-builder.md`、`branches/documents-research/documentation-analysis.md`。
-- 用户要求“分析合同并指出风险”：主分支 `branches/domain-specific/legal-policy-review.md`；辅助分支 `branches/documents-research/documentation-analysis.md`。
-- 用户要求“根据表格每天自动生成销售报告”：主分支 `branches/automation/automation-workflow.md`；辅助分支 `branches/data-analytics/spreadsheet-analysis.md`、`branches/documents-research/report-writing.md`。
-- 用户要求“生成营销文案并做 A/B 测试”：主分支 `branches/product-design-business/marketing-content.md`；辅助分支按重点选择 `branches/product-design-business/business-strategy.md` 或 `branches/data-analytics/visualization-dashboard.md`。
-- 用户要求“做 3D 交互并让 Codex 实现”：主分支 `branches/multimodal/visual-3d-interaction.md`；辅助分支 `branches/software-engineering/coding-feature-development.md`、`branches/software-engineering/cli-agent.md`。
-- 用户要求“法律/医疗/金融材料总结成报告”：主分支使用对应 `domain-specific` 分支；辅助分支 `branches/documents-research/report-writing.md`。
-- 用户要求“CI 构建失败，让 Codex 修”：主分支 `branches/software-engineering/devops-ci.md`；辅助分支 `branches/software-engineering/bugfix-debugging.md`、`branches/software-engineering/cli-agent.md`。
-- 用户要求“线上数据库要改 schema，先给迁移方案”：主分支 `branches/software-engineering/database-migration.md`；辅助分支 `branches/software-engineering/plan-mode.md`、`branches/software-engineering/security-threat-modeling.md`。
-- 用户要求“把这个产品功能设计成 API”：主分支 `branches/software-engineering/api-design.md`；辅助分支 `branches/product-design-business/product-requirements.md`。
-- 用户要求“做一个内部知识库问答系统”：主分支 `branches/ai-systems/knowledge-base-rag.md`；辅助分支 `branches/documents-research/documentation-analysis.md`、`branches/software-engineering/api-design.md`、`branches/software-engineering/security-threat-modeling.md`。
-- 用户要求“分析一批客服对话并统计问题类型”：主分支 `branches/business-operations/customer-service-qa.md`；辅助分支 `branches/data-analytics/data-analysis.md`、`branches/documents-research/report-writing.md`。
-- 用户要求“根据候选人简历设计面试问题并模拟面试”：主分支 `branches/business-operations/recruiting-evaluation.md`；辅助分支 `branches/communication/roleplay-simulation.md`。
-- 用户要求“设计一个训练营课程，并输出营销文案”：主分支 `branches/education/curriculum-design.md`；辅助分支 `branches/product-design-business/marketing-content.md`、`branches/documents-research/report-writing.md`。
-- 用户要求“设计游戏玩法并让 Codex 实现原型”：主分支 `branches/creative-design/game-design.md`；辅助分支 `branches/software-engineering/coding-feature-development.md`、`branches/product-design-business/ux-ui-design.md`。
+## 4. Auxiliary Branch Selection
 
-## 5. Routing Examples
-### Example 1
-- 用户原始需求：帮我看看这个 prompt 哪里不好。
-- 路由判断：已有 prompt 诊断
-- 主分支：`branches/general-prompt/prompt-review.md`
-- 辅助分支：无，若要求改写再加 prompt-rewrite
-- 需要补充的信息：原 prompt、目标工具、期望结果、坏输出
-- prompt 生成策略：先按八维评分，再给优化版和改动理由。
-### Example 2
-- 用户原始需求：把这句话改成 Codex 可以直接执行的 prompt。
-- 路由判断：口语需求转 Codex 指令
-- 主分支：`branches/general-prompt/prompt-rewrite.md`
-- 辅助分支：branches/software-engineering/cli-agent.md
-- 需要补充的信息：工作目录、任务领域、允许命令、禁止操作
-- prompt 生成策略：补齐 Codex 工作目录、步骤、约束、验证和报告格式。
-### Example 3
-- 用户原始需求：让 Codex 先 plan，不要直接改代码。
-- 路由判断：plan only
-- 主分支：`branches/software-engineering/plan-mode.md`
-- 辅助分支：branches/software-engineering/cli-agent.md
-- 需要补充的信息：工作目录、目标、先读文件、风险关注
-- prompt 生成策略：写 no-edit prompt，要求读取、分析、计划、验证和待确认问题。
-### Example 4
-- 用户原始需求：我的项目 npm run dev 报错了，让 Codex 修。
-- 路由判断：debug 修复
+辅助分支只在能改变执行质量时加入，普通任务最多 1 个，中等复杂任务最多 2 个，高风险或跨域任务最多 3 个。超过 3 个时拆成多阶段 prompt。
+
+| 辅助需求 | 常用辅助分支 |
+| --- | --- |
+| 目标工具是 Codex CLI、Claude Code、Gemini CLI | `branches/software-engineering/cli-agent.md` |
+| 需要先规划不执行 | `branches/software-engineering/plan-mode.md` |
+| 需要测试、回归、覆盖率或验收 | `branches/software-engineering/test-generation.md` |
+| 需要防御性安全边界 | `branches/software-engineering/security-threat-modeling.md` |
+| 需要 API 契约或调用格式 | `branches/software-engineering/api-design.md` |
+| 需要正式报告 | `branches/documents-research/report-writing.md` |
+| 需要文档索引、摘要或引用 | `branches/documents-research/documentation-analysis.md` |
+| 需要研究来源综合 | `branches/documents-research/research-synthesis.md` |
+| 需要数据证据或指标分析 | `branches/data-analytics/data-analysis.md` |
+| 需要表格处理 | `branches/data-analytics/spreadsheet-analysis.md` |
+| 需要图表或仪表盘 | `branches/data-analytics/visualization-dashboard.md` |
+| 需要产品验收标准 | `branches/product-design-business/product-requirements.md` |
+| 需要多模态图片证据 | `branches/multimodal/visual-image-analysis.md` |
+| 需要法律、医疗、金融、招聘等安全边界 | 对应 `branches/domain-specific/*` 或 `branches/business-operations/recruiting-evaluation.md` |
+| 需要模板化或 Prompt 系统改进 | `branches/general-prompt/prompt-template-builder.md`、`branches/meta/meta-skill-builder.md` |
+
+## 5. Conflict Handling
+
+- 唯一主分支：如果多个分支命中，选择最能定义最终交付物和验收标准的分支。
+- 辅助分支数量：保留工具适配、验证、安全、引用、输出格式中最关键的 1 到 3 个。
+- 高风险优先级：医疗、法律、金融、安全、招聘/人事、隐私、儿童/教育优先于速度、风格和完整性。
+- 需求不清晰：先生成带 `[待补充: field]` 的 prompt，只有阻塞输入缺失时才追问。
+- 用户要求与安全冲突：拒绝越界部分，改写为安全替代任务。
+- 代码 + 文档 + 产品混合：按最终交付物决定。若要给开发 Agent 执行，主分支通常是 `coding-feature-development` 或 `product-requirements`，报告写作和测试作为辅助。
+- 只读 vs 修改冲突：用户说“分析/理解/评估”时默认只读；用户说“修复/实现/改”时允许最小修改并加验证。
+
+## 6. Risk Levels
+
+| 风险等级 | 场景 | 路由要求 |
+| --- | --- | --- |
+| Low | 普通翻译、文案、非敏感总结 | 标注缺失输入和输出格式 |
+| Medium | 代码修改、数据分析、业务报告、自动化 | 加验证、禁止无关改动、说明不确定性 |
+| High | 医疗、法律、金融、安全、招聘、隐私、生产系统 | 加安全边界、来源依据、人工复核路径，必要时限制或拒绝 |
+
+## 7. Standard Routing Output
+
+```text
+主分支：
+辅助分支：
+命中原因：
+缺失输入：
+风险等级：
+是否需要澄清：
+是否可以直接生成 prompt：
+prompt 构造策略：
+最终输出格式：
+```
+
+缺失输入分类：
+- 可合理假设：
+- 需标记为 `[待补充]`：
+- 需追问：
+- 阻塞任务：
+
+## 8. Prompt Construction Strategy
+
+路由完成后，最终 prompt 必须组合：
+- 主分支的目标、输入、步骤、硬约束和验收标准。
+- 辅助分支的工具适配、验证、引用、报告或安全规则。
+- `common-principles.md` 的缺失输入、约束优先级、防幻觉和高风险规则。
+- `checklists.md` 的通用检查表、路由检查表和分支专属检查表。
+
+## 9. Complex Routing Examples
+
+### Example 1. 修复代码 bug + 需要写测试
+
+- 用户原始需求：帮我让 Codex 修复 `npm run build` 报错，并补回归测试。
 - 主分支：`branches/software-engineering/bugfix-debugging.md`
-- 辅助分支：branches/software-engineering/cli-agent.md
-- 需要补充的信息：完整日志、复现步骤、环境、最近改动
-- prompt 生成策略：定位根因、最小修复、运行原命令验证。
-### Example 5
-- 用户原始需求：帮我写一个 prompt，让 AI 分析整个 repo。
-- 路由判断：仓库理解
+- 辅助分支：`branches/software-engineering/test-generation.md`, `branches/software-engineering/cli-agent.md`
+- 命中原因：最终交付物是修复构建失败；测试和 Codex 执行是辅助要求。
+- 缺失输入：完整日志、工作目录、环境、测试命令。
+- 风险等级：Medium。
+- prompt 构造策略：先根因分析，最小修复，禁止删除测试，运行原失败命令和相关测试。
+
+### Example 2. 分析 GitHub 仓库 + 生成改进建议
+
+- 用户原始需求：分析这个 GitHub repo，告诉我结构、风险和下一步优化建议，不要改代码。
 - 主分支：`branches/software-engineering/repository-analysis.md`
-- 辅助分支：branches/general-prompt/prompt-expansion.md
-- 需要补充的信息：仓库路径、关注点、输出深度
-- prompt 生成策略：只读分析，读取 README/配置/入口并输出项目报告。
-### Example 6
-- 用户原始需求：读取这本 PDF，把方法提炼成 skill。
-- 路由判断：PDF 转 skill
-- 主分支：`branches/documents-research/pdf-to-skill.md`
-- 辅助分支：branches/meta/meta-skill-builder.md; branches/documents-research/documentation-analysis.md
-- 需要补充的信息：PDF 路径、阅读范围、目标 skill
-- prompt 生成策略：多轮阅读，规则/模板/checklist/示例化。
-### Example 7
-- 用户原始需求：帮我分析 Excel 表格并生成销售报告。
-- 路由判断：表格分析加报告
-- 主分支：`branches/data-analytics/spreadsheet-analysis.md`
-- 辅助分支：branches/documents-research/report-writing.md
-- 需要补充的信息：表格路径、字段、汇总维度、报告读者
-- prompt 生成策略：先做表结构和数据质量，再透视汇总并写报告。
-### Example 8
-- 用户原始需求：帮我写一个 PRD。
-- 路由判断：产品需求
-- 主分支：`branches/product-design-business/product-requirements.md`
-- 辅助分支：branches/general-prompt/prompt-template-builder.md
-- 需要补充的信息：产品目标、用户画像、场景、成功指标
-- prompt 生成策略：输出 MVP、用户故事、验收标准和非目标。
-### Example 9
-- 用户原始需求：生成小红书营销文案。
-- 路由判断：营销内容
-- 主分支：`branches/product-design-business/marketing-content.md`
-- 辅助分支：可加 business-strategy 做定位
-- 需要补充的信息：产品、受众、渠道、转化目标、语气
-- prompt 生成策略：生成多版本、标题、标签和 A/B 测试。
-### Example 10
-- 用户原始需求：分析一份合同里的风险。
-- 路由判断：法律高风险
-- 主分支：`branches/domain-specific/legal-policy-review.md`
-- 辅助分支：branches/documents-research/documentation-analysis.md
-- 需要补充的信息：司法辖区、合同类型、文本、风险关注
-- prompt 生成策略：信息性风险识别，非法律意见，列义务和律师问题。
-### Example 11
-- 用户原始需求：整理症状，帮我准备去看医生。
-- 路由判断：医疗高风险
-- 主分支：`branches/domain-specific/medical-health-info.md`
-- 辅助分支：无
-- 需要补充的信息：症状、时间线、病史、用药、检查资料
-- prompt 生成策略：整理时间线和就医问题，提醒急症，不诊断。
-### Example 12
-- 用户原始需求：设计一个 n8n 自动化流程。
-- 路由判断：自动化流程
-- 主分支：`branches/automation/automation-workflow.md`
-- 辅助分支：可加 data-analytics 或 report-writing
-- 需要补充的信息：触发、输入、输出、工具、失败处理
-- prompt 生成策略：节点、字段映射、重试、日志、通知和测试步骤。
-### Example 13
-- 用户原始需求：给登录接口写单元测试。
-- 路由判断：测试生成
-- 主分支：`branches/software-engineering/test-generation.md`
-- 辅助分支：branches/software-engineering/cli-agent.md
-- 需要补充的信息：接口路径、测试框架、行为、命令
-- prompt 生成策略：覆盖正常、异常、边界并运行测试。
-### Example 14
-- 用户原始需求：帮我把客服对话做成角色扮演训练。
-- 路由判断：角色模拟
-- 主分支：`branches/communication/roleplay-simulation.md`
-- 辅助分支：branches/communication/translation-localization.md 若跨语言
-- 需要补充的信息：角色、场景、目标、难度、反馈方式
-- prompt 生成策略：多轮互动，一轮一问，按维度反馈。
-### Example 15
-- 用户原始需求：帮我审查这个 API 的权限设计。
-- 路由判断：防御性安全
-- 主分支：`branches/software-engineering/security-threat-modeling.md`
-- 辅助分支：branches/software-engineering/code-review.md
-- 需要补充的信息：系统范围、资产、角色、边界、代码路径
-- prompt 生成策略：资产/边界/攻击面/风险/防护建议，不给利用步骤。
-### Example 16
-- 用户原始需求：帮我写一个 prompt，让 Codex 修复 GitHub Actions 构建失败。
-- 路由判断：DevOps / CI 构建失败修复。
-- 主分支：`branches/software-engineering/devops-ci.md`
-- 辅助分支：`branches/software-engineering/bugfix-debugging.md`, `branches/software-engineering/cli-agent.md`
-- 需要补充的信息：仓库路径、workflow 文件、失败日志、构建/测试命令、runner 环境、secrets 名称。
-- prompt 生成策略：先读 CI 配置和日志，区分本地与 runner 失败，最小修改并输出重跑 workflow 和 rollback。
-### Example 17
-- 用户原始需求：我需要给线上 PostgreSQL 做 schema migration，先让 Codex plan。
-- 路由判断：生产数据库迁移，需要 plan 和安全边界。
-- 主分支：`branches/software-engineering/database-migration.md`
-- 辅助分支：`branches/software-engineering/plan-mode.md`, `branches/software-engineering/security-threat-modeling.md`
-- 需要补充的信息：schema、migration 工具、数据量、备份、停机容忍、受影响服务。
-- prompt 生成策略：只规划不执行，识别破坏性变更，输出分阶段迁移、备份、rollback 和 staging 验证。
-### Example 18
-- 用户原始需求：帮我设计一个 REST API，要有鉴权、错误码、分页和 OpenAPI。
-- 路由判断：API 契约设计。
-- 主分支：`branches/software-engineering/api-design.md`
-- 辅助分支：`branches/product-design-business/product-requirements.md`, `branches/software-engineering/test-generation.md`
-- 需要补充的信息：调用方、资源模型、字段、鉴权、错误场景、版本策略。
-- prompt 生成策略：定义接口表、schema、错误响应、鉴权、分页、OpenAPI、示例和测试场景。
-### Example 19
-- 用户原始需求：帮我做一个公司内部文档 RAG 知识库，回答必须带引用。
-- 路由判断：RAG 系统设计。
+- 辅助分支：`branches/documents-research/report-writing.md`
+- 命中原因：最终交付物是只读仓库分析报告。
+- 缺失输入：仓库路径或链接、关注点、输出深度。
+- 风险等级：Medium。
+- prompt 构造策略：只读，读取 README/配置/入口，事实和推断分开，输出风险和建议。
+
+### Example 3. 构建 RAG 系统 + 引用和权限控制
+
+- 用户原始需求：做一个内部知识库问答系统，回答必须引用来源，不同部门不能看到彼此文档。
 - 主分支：`branches/ai-systems/knowledge-base-rag.md`
-- 辅助分支：`branches/documents-research/documentation-analysis.md`, `branches/software-engineering/api-design.md`, `branches/software-engineering/security-threat-modeling.md`
-- 需要补充的信息：知识源、用户、问答范围、chunk、embedding、向量库、权限、评估集。
-- prompt 生成策略：建立文档索引，设计检索/rerank/生成流程，强制引用、不命中拒答和评估指标。
-### Example 20
-- 用户原始需求：帮我质检客服对话，输出评分和改进建议。
-- 路由判断：客服质检和培训反馈。
-- 主分支：`branches/business-operations/customer-service-qa.md`
-- 辅助分支：`branches/documents-research/documentation-analysis.md`, `branches/data-analytics/data-analysis.md`
-- 需要补充的信息：对话、业务场景、渠道、评分标准、合规规则、隐私要求。
-- prompt 生成策略：脱敏后按 rubric 评分，每项引用证据，输出改进建议和替代话术。
-### Example 21
-- 用户原始需求：帮我根据 JD 和简历评估候选人，并设计面试问题。
-- 路由判断：招聘评估与面试问题生成。
-- 主分支：`branches/business-operations/recruiting-evaluation.md`
-- 辅助分支：`branches/communication/roleplay-simulation.md`
-- 需要补充的信息：JD、must-have、nice-to-have、简历、面试记录、评分标准、偏见控制。
-- prompt 生成策略：基于岗位证据评分，排除受保护属性，输出待验证风险和面试问题。
-### Example 22
-- 用户原始需求：帮我设计一个 6 周的 Python 数据分析课程。
-- 路由判断：课程设计。
-- 主分支：`branches/education/curriculum-design.md`
-- 辅助分支：`branches/domain-specific/education-tutoring.md`, `branches/documents-research/report-writing.md`
-- 需要补充的信息：学习者画像、先修知识、目标、授课形式、练习要求、最终项目。
-- prompt 生成策略：按周设计目标、模块、活动、作业、评估和最终项目。
-### Example 23
-- 用户原始需求：帮我设计一个 roguelike 小游戏，并输出可开发原型 prompt。
-- 路由判断：游戏设计加原型开发。
-- 主分支：`branches/creative-design/game-design.md`
-- 辅助分支：`branches/software-engineering/coding-feature-development.md`, `branches/product-design-business/ux-ui-design.md`
-- 需要补充的信息：类型、玩家、平台、核心循环、机制、关卡目标、原型范围、成功指标。
-- prompt 生成策略：先输出 GDD 和可测试原型范围，再把实现任务交给开发分支。
+- 辅助分支：`branches/software-engineering/security-threat-modeling.md`, `branches/documents-research/documentation-analysis.md`
+- 命中原因：最终交付物是 RAG 方案，引用和权限是核心辅助。
+- 缺失输入：知识源、文档类型、用户角色、权限规则、更新频率、评估集。
+- 风险等级：High。
+- prompt 构造策略：定义索引字段、chunk、metadata、retrieval/rerank、引用、不命中拒答、权限和审计。
+
+### Example 4. 编写 PRD + 输出给开发 Agent
+
+- 用户原始需求：帮我写一个 PRD，并把它转成 Codex 能实现的开发 prompt。
+- 主分支：`branches/product-design-business/product-requirements.md`
+- 辅助分支：`branches/software-engineering/coding-feature-development.md`, `branches/software-engineering/test-generation.md`
+- 命中原因：最终交付物先是 PRD，开发 prompt 是后续执行形式。
+- 缺失输入：目标用户、核心场景、MVP 范围、非目标、成功指标。
+- 风险等级：Medium。
+- prompt 构造策略：先生成 PRD，再输出开发 Agent 任务、验收标准和验证方式。
+
+### Example 5. 医疗信息整理 + 安全边界
+
+- 用户原始需求：我最近胸痛，帮我写 prompt 让 AI 判断是什么病。
+- 主分支：`branches/domain-specific/medical-health-info.md`
+- 辅助分支：无或 `branches/documents-research/report-writing.md`
+- 命中原因：医疗高风险，必须限制为症状整理和就医准备。
+- 缺失输入：症状时间线、严重程度、伴随症状、病史、用药。
+- 风险等级：High。
+- prompt 构造策略：不诊断、不处方，先列急症红旗信号和就医建议，再整理给医生的问题。
+
+### Example 6. 金融分析 + 风险披露
+
+- 用户原始需求：帮我写 prompt 分析某只股票要不要买。
+- 主分支：`branches/domain-specific/finance-investment-analysis.md`
+- 辅助分支：`branches/data-analytics/data-analysis.md`, `branches/documents-research/report-writing.md`
+- 命中原因：金融高风险，最终交付物应改为信息性研究框架。
+- 缺失输入：标的、时间范围、数据来源、风险偏好、当前日期。
+- 风险等级：High。
+- prompt 构造策略：不做买卖指令，不保证收益；区分事实、假设、观点和风险。
+
+### Example 7. 法律合同总结 + 非法律建议边界
+
+- 用户原始需求：总结这份合同有哪些坑，告诉我能不能签。
+- 主分支：`branches/domain-specific/legal-policy-review.md`
+- 辅助分支：`branches/documents-research/documentation-analysis.md`, `branches/documents-research/report-writing.md`
+- 命中原因：法律高风险，最终交付物应是条款摘要和风险点，不是最终法律结论。
+- 缺失输入：司法辖区、合同类型、合同文本、交易背景、风险关注。
+- 风险等级：High。
+- prompt 构造策略：要求非法律建议声明、条款义务、风险等级、律师咨询问题。
+
+### Example 8. Prompt 系统优化 + 分支结构改进
+
+- 用户原始需求：审计我的 prompt skill hub，补路由、模板、eval 和 manifest。
+- 主分支：`branches/meta/meta-skill-builder.md`
+- 辅助分支：`branches/general-prompt/prompt-review.md`, `branches/general-prompt/prompt-template-builder.md`
+- 命中原因：最终交付物是 Prompt 系统改进方案和文件修改。
+- 缺失输入：项目路径、目标工具、重点分支、是否允许新增文件。
+- 风险等级：Medium。
+- prompt 构造策略：先审计再改，补齐路由、模板、检查表、示例、eval 和结构化元数据。
+
+### Example 9. 数据分析 + 可视化报告
+
+- 用户原始需求：分析用户行为 CSV，找留存问题并输出可视化报告。
+- 主分支：`branches/data-analytics/data-analysis.md`
+- 辅助分支：`branches/data-analytics/visualization-dashboard.md`, `branches/documents-research/report-writing.md`
+- 命中原因：最终交付物是数据分析结论，图表和报告是辅助输出形式。
+- 缺失输入：CSV 路径、字段含义、指标口径、时间范围、报告读者。
+- 风险等级：Medium。
+- prompt 构造策略：数据字典、质量检查、指标定义、可复现分析、图表和结论边界。
+
+### Example 10. 多模态图片分析 + 结构化描述
+
+- 用户原始需求：分析这张 UI 截图，输出结构化问题清单。
+- 主分支：`branches/multimodal/visual-image-analysis.md`
+- 辅助分支：`branches/product-design-business/ux-ui-design.md`
+- 命中原因：最终交付物是基于可见内容的视觉分析。
+- 缺失输入：图片、观察重点、目标设备、输出格式。
+- 风险等级：Low。
+- prompt 构造策略：区分可见事实和推断，描述空间位置，不推断不可见实现。

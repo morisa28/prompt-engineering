@@ -622,3 +622,332 @@
 - [ ] 核心循环明确
 - [ ] 原型范围可测试
 - [ ] playtest 验收标准明确
+
+## 24. Bugfix Debugging 强化模板
+
+**使用场景**：代码报错、构建失败、测试失败、页面白屏、CLI 错误。
+
+**不适用场景**：用户要从零开发新功能、做大范围重构或只读理解仓库。
+
+**必填输入**：
+- {{working_directory}}
+- {{error_log}}
+- {{reproduction_steps}}
+- {{environment}}
+- {{verification_commands}}
+
+**可选输入**：
+- {{recent_changes}}
+- {{related_files}}
+- {{package_manager_version}}
+
+**模板正文**：
+```text
+你是 {{target_ai_tool}}，请在 {{working_directory}} 修复以下错误。
+
+错误日志：
+{{error_log}}
+
+复现步骤：
+{{reproduction_steps}}
+
+环境：
+{{environment}}
+
+要求：
+1. 先读取项目配置、错误栈指向的文件和相关测试，再定位根因。
+2. 区分代码、配置、依赖、环境和数据问题；根因必须有文件、日志或命令证据。
+3. 只做最小修复，禁止无关重构、全仓库格式化、删除测试、降低断言或注释掉失败逻辑。
+4. 如需新增依赖或破坏性操作，先说明必要性并请求确认。
+5. 修复后运行 {{verification_commands}}，至少覆盖原失败路径。
+
+输出格式：
+- 根因：
+- 修改文件：
+- 关键改动：
+- 验证命令与结果：
+- 未验证项和剩余风险：
+```
+
+**质量检查点**：
+- [ ] 使用了完整日志和复现步骤
+- [ ] 有根因证据
+- [ ] 有最小修复边界
+- [ ] 有验证命令和失败处理
+
+## 25. Repository Analysis 强化模板
+
+**使用场景**：只读分析仓库结构、技术栈、入口、模块、数据流、风险和改进建议。
+
+**不适用场景**：用户要求直接改代码、修 bug 或写新功能。
+
+**必填输入**：
+- {{repository_path}}
+- {{analysis_goal}}
+- {{focus_areas}}
+- {{output_depth}}
+
+**可选输入**：
+- {{known_questions}}
+- {{excluded_paths}}
+- {{report_audience}}
+
+**模板正文**：
+```text
+你是 {{target_ai_tool}}，请只读分析 {{repository_path}}，不要修改文件。
+
+分析目标：{{analysis_goal}}
+关注重点：{{focus_areas}}
+输出深度：{{output_depth}}
+
+执行步骤：
+1. 读取 README、依赖配置、构建/测试配置、入口文件和顶层目录。
+2. 输出简化文件树，标注核心模块、数据流、外部依赖和运行方式。
+3. 区分事实、推断和未读取区域；未读取路径不得写成确定结论。
+4. 输出风险点、改进建议和后续可执行任务，但不要执行修改。
+
+输出格式：
+- 项目概览
+- 文件树和入口
+- 技术栈证据
+- 核心模块与数据流
+- 运行/测试命令
+- 风险点
+- 改进建议
+- 不确定性和待补充材料
+```
+
+**质量检查点**：
+- [ ] 明确只读
+- [ ] 技术栈有证据
+- [ ] 核心模块和数据流清楚
+- [ ] 建议不冒充已执行改动
+
+## 26. PRD To Development Agent 模板
+
+**使用场景**：把产品想法或 PRD 产出为可交给开发 Agent 的任务 prompt。
+
+**不适用场景**：纯营销文案、纯视觉稿或没有任何产品目标的随意功能清单。
+
+**必填输入**：
+- {{product_goal}}
+- {{target_users}}
+- {{user_scenarios}}
+- {{mvp_scope}}
+- {{non_goals}}
+- {{success_metrics}}
+
+**可选输入**：
+- {{technical_context}}
+- {{design_constraints}}
+- {{release_constraints}}
+
+**模板正文**：
+```text
+请基于以下信息生成 PRD，并附带可交给开发 Agent 的实现 prompt。
+
+产品目标：{{product_goal}}
+目标用户：{{target_users}}
+核心场景：{{user_scenarios}}
+MVP 范围：{{mvp_scope}}
+非目标：{{non_goals}}
+成功指标：{{success_metrics}}
+技术/设计约束：{{technical_context}} {{design_constraints}}
+
+PRD 必须包含：问题定义、用户故事、功能范围、非目标、边界条件、指标、验收标准。
+开发 Agent prompt 必须包含：工作目录占位符、先读文件、实现边界、禁止无关重构、测试/构建验证、最终改动报告。
+每个用户故事使用 Given/When/Then，不能写无法验收的愿景描述。
+```
+
+**质量检查点**：
+- [ ] PRD 和开发 prompt 分开
+- [ ] MVP 与后续迭代分开
+- [ ] 每个功能有验收标准
+- [ ] 有非目标和边界条件
+
+## 27. RAG System Design 模板
+
+**使用场景**：知识库问答、内部文档助手、引用、权限控制、RAG 评估。
+
+**不适用场景**：没有知识源却要求凭模型常识回答。
+
+**必填输入**：
+- {{knowledge_sources}}
+- {{target_users}}
+- {{qa_scope}}
+- {{citation_requirement}}
+- {{access_control}}
+- {{freshness_requirement}}
+
+**可选输入**：
+- {{chunking_strategy}}
+- {{embedding_model}}
+- {{vector_database}}
+- {{reranking_strategy}}
+- {{evaluation_questions}}
+
+**模板正文**：
+```text
+请设计 RAG 知识库系统 prompt。
+
+知识源：{{knowledge_sources}}
+用户：{{target_users}}
+问答范围和非范围：{{qa_scope}}
+引用要求：{{citation_requirement}}
+权限控制：{{access_control}}
+更新频率：{{freshness_requirement}}
+
+必须设计：
+1. 文档索引字段：来源、标题、路径、版本、更新时间、权限、metadata。
+2. chunking、overlap、metadata、去重和版本策略。
+3. embedding、向量库、检索、rerank、上下文组装和生成流程。
+4. 引用格式：至少能回溯到文档、标题、段落或 chunk。
+5. 不命中策略：无依据时拒答或澄清，不得编造。
+6. 权限、更新、失效文档、审计日志和评估指标。
+
+输出格式：范围、架构、索引字段、检索流程、回答规则、权限策略、评估集、风险。
+```
+
+**质量检查点**：
+- [ ] 知识源和权限明确
+- [ ] 引用和拒答规则明确
+- [ ] 检索和评估可验证
+- [ ] 防幻觉边界明确
+
+## 28. Missing Input Completion 模板
+
+**使用场景**：用户需求模糊但可以继续生成带占位符的 prompt。
+
+**不适用场景**：缺失信息会导致医疗、法律、金融、安全或生产系统任务越界。
+
+**必填输入**：
+- {{raw_request}}
+- {{target_tool}}
+- {{known_context}}
+
+**模板正文**：
+```text
+请先不要直接补事实。请把以下需求拆成缺失输入清单，并生成可继续使用的 prompt 草案。
+
+原始需求：{{raw_request}}
+目标工具：{{target_tool}}
+已知上下文：{{known_context}}
+
+输出：
+1. 可合理假设的信息。
+2. 必须标记为 [待补充] 的信息。
+3. 必须追问用户的信息。
+4. 阻塞任务的信息。
+5. 带占位符的最终 prompt 草案。
+
+禁止把缺失事实写成确定结论。
+```
+
+**质量检查点**：
+- [ ] 缺失信息已分级
+- [ ] 占位符清楚
+- [ ] 阻塞项没有被绕过
+
+## 29. Prompt Self-Check 模板
+
+**使用场景**：最终 prompt 交付前检查质量、路由、风险和可执行性。
+
+**不适用场景**：用户只要极短口号或无需结构化 prompt 的简单任务。
+
+**必填输入**：
+- {{draft_prompt}}
+- {{routing_result}}
+- {{risk_level}}
+
+**模板正文**：
+```text
+请审查以下待交付 prompt。
+
+路由结果：{{routing_result}}
+风险等级：{{risk_level}}
+待审查 prompt：
+{{draft_prompt}}
+
+按以下维度给出 Yes/No 和修复建议：
+- 是否明确最终交付物？
+- 是否包含目标、背景、输入、步骤、约束、输出格式和验收标准？
+- 是否区分事实、假设和待补充信息？
+- 是否存在编造文件、数据、引用或专业结论的风险？
+- 对 coding agent 是否包含最小修改、禁止事项、验证命令和变更摘要？
+- 对文档/研究任务是否包含来源、引用和不确定性？
+- 对高风险任务是否限制到安全范围？
+- 是否可以直接复制给目标工具执行？
+```
+
+**质量检查点**：
+- [ ] 每项有 Yes/No
+- [ ] 失败项有修复动作
+- [ ] 高风险边界被检查
+
+## 30. Multi-Branch Combination 模板
+
+**使用场景**：任务同时涉及主交付物、工具适配、验证、报告或安全边界。
+
+**不适用场景**：单一简单任务，辅助分支不会改变执行质量。
+
+**必填输入**：
+- {{primary_branch}}
+- {{auxiliary_branches}}
+- {{raw_request}}
+- {{target_tool}}
+
+**模板正文**：
+```text
+请基于以下路由生成最终 prompt。
+
+原始需求：{{raw_request}}
+目标工具：{{target_tool}}
+主分支：{{primary_branch}}
+辅助分支：{{auxiliary_branches}}
+
+构造规则：
+1. 主分支定义目标、输入、步骤、验收标准。
+2. 辅助分支只加入工具适配、验证、引用、报告或安全边界。
+3. 若辅助分支超过 3 个，拆成多阶段 prompt。
+4. 冲突时按安全边界、用户约束、项目上下文、工具能力、输出格式排序。
+
+输出：路由摘要、缺失输入、最终 prompt、自检结果。
+```
+
+**质量检查点**：
+- [ ] 主分支唯一
+- [ ] 辅助分支有明确作用
+- [ ] 冲突处理清楚
+
+## 31. Prompt System Improvement 模板
+
+**使用场景**：审计或改进 prompt skill、路由系统、模板库、检查表、eval、manifest。
+
+**不适用场景**：只要求改写一个普通 prompt。
+
+**必填输入**：
+- {{project_path}}
+- {{improvement_goal}}
+- {{focus_areas}}
+- {{allowed_changes}}
+- {{sync_or_output_requirements}}
+
+**模板正文**：
+```text
+你是 Prompt Engineering 架构师，请改进 {{project_path}} 的 Prompt Skill Hub。
+
+目标：{{improvement_goal}}
+重点：{{focus_areas}}
+允许改动：{{allowed_changes}}
+同步/输出要求：{{sync_or_output_requirements}}
+
+必须先审计再修改。审计至少覆盖入口、路由、通用原则、模板、检查表、示例、分支、脚本、eval 和 manifest。
+修改时只围绕提升 prompt 的清晰度、可执行性、可验证性、安全性和扩展性。
+完成后运行可用的结构校验或引用检查，并报告修改文件、风险和后续建议。
+```
+
+**质量检查点**：
+- [ ] 先审计再改
+- [ ] 改动范围聚焦 Prompt Hub
+- [ ] 有 eval 和 manifest 设计
+- [ ] 有自检报告

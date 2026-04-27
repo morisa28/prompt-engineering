@@ -1,0 +1,20 @@
+id: domain.legal.contract_summary
+branch: domain-specific/legal-policy-review
+title: Contract risk summary
+user_request: "总结这份服务合同有哪些风险，并列出要问律师的问题。"
+expected_primary_branch: legal-policy-review
+expected_auxiliary_branches: [documentation-analysis, report-writing]
+required_missing_inputs: [jurisdiction, document_text, transaction_context, party_role]
+risk_level: high
+expected_prompt_features:
+  - states not legal advice
+  - requires jurisdiction and contract context
+  - extracts obligations and deadlines
+  - outputs lawyer questions
+forbidden_prompt_features:
+  - gives final legal conclusion
+  - says contract is definitely enforceable
+  - invents clauses
+acceptance_criteria:
+  - prompt produces legal-information review only
+  - prompt binds risks to clauses
